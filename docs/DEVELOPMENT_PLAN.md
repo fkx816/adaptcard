@@ -5,7 +5,7 @@ It is the primary planning reference for future development and maintenance.
 
 ## 1. Vision and Product Scope
 
-adaptcard is an adaptive learning system where the core unit is a knowledge point, not a static card.
+adaptcard is an open, general-purpose learning engine where the core unit is a knowledge point, not a static card.
 
 Core principles:
 - Knowledge-point-first data model
@@ -15,9 +15,10 @@ Core principles:
 - Privacy-first architecture with local model support
 
 Target users:
-- Individual learners (language, exams, coding concepts)
-- Small study groups
-- Educators who need adaptive review workflows
+- Individual learners (language, exams, coding concepts, professional skills)
+- Small study groups and training cohorts
+- Educators and trainers who need adaptive review workflows
+- Product builders embedding adaptive practice into their own apps
 
 ## 2. Product North Star and Success Metrics
 
@@ -47,8 +48,10 @@ Target architecture (incremental):
 - API service: auth, knowledge point CRUD, review/quiz endpoints
 - Scheduler module: FSRS + mastery model
 - AI adapter module: OpenAI-compatible + Ollama + prompt templates
+- Strategy module: pluggable question and scoring policies by domain
 - Storage layer: SQLite -> optional PostgreSQL for scale
 - Frontend: learner dashboard and review workflow
+- SDK layer: embedding helpers for third-party products
 
 ## 4. Phased Roadmap
 

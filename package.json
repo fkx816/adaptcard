@@ -1,7 +1,7 @@
 {
   "name": "adaptcard",
   "version": "0.1.0",
-  "description": "FSRS-powered adaptive learning with AI-generated quizzes",
+  "description": "Open learning engine for adaptive practice with FSRS and AI-generated assessments",
   "type": "module",
   "main": "dist/server.js",
   "scripts": {
@@ -11,9 +11,10 @@
     "lint": "node ./node_modules/typescript/bin/tsc --noEmit"
   },
   "keywords": [
+    "learning-engine",
+    "adaptive-learning",
     "fsrs",
-    "flashcards",
-    "learning",
+    "knowledge",
     "ai"
   ],
   "license": "MIT",
