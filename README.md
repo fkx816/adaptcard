@@ -1,5 +1,7 @@
 # adaptcard
 
+![adaptcard hero](docs/assets/hero.svg)
+
 Open Learning Engine for adaptive practice, powered by FSRS scheduling and AI-generated assessment.
 
 > Build adaptive learning workflows for any domain: history, algorithms, sports, language, certifications, and more.
@@ -160,12 +162,17 @@ curl -X POST http://127.0.0.1:8787/quiz/generate \
 - User/accounts + multi-tenant data isolation
 - Frontend learner workspace
 - SDK and integration guides for external products
+- Anki-level browser and card management parity
+- One-click deployment profiles
 
 ## Planning and maintenance
 
 - Full roadmap: `docs/DEVELOPMENT_PLAN.md`
 - Maintenance runbook: `docs/MAINTENANCE_RUNBOOK.md`
 - Product positioning: `docs/PRODUCT_POSITIONING.md`
+- Anki parity plan: `docs/ANKI_PARITY_PLAN.md`
+- Frontend product spec: `docs/FRONTEND_PRODUCT_SPEC.md`
+- Deployment blueprint: `docs/DEPLOYMENT_BLUEPRINT.md`
 
 ## Open-source docs
 

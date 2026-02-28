@@ -191,16 +191,30 @@ Definition of done:
 6. Add review session tracking endpoint
 7. Add CI workflow
 8. Add OpenAPI spec draft
-9. Add simple frontend prototype
+9. Start polished frontend implementation from `docs/FRONTEND_PRODUCT_SPEC.md`
 10. Add telemetry events for product metrics
 
-## 10. Non-goals (for now)
+## 10. Strategic expansion tracks
+
+Track A - Anki-level completeness:
+- Follow `docs/ANKI_PARITY_PLAN.md` for browser, deck, note/card, and advanced review controls.
+
+Track B - One-click deployment:
+- Follow `docs/DEPLOYMENT_BLUEPRINT.md` to support 1Panel and compose-first deployment.
+
+Track C - Premium project presentation:
+- Maintain rich docs, diagrams, and visual assets in README and `docs/assets/`.
+
+Track D - Ecosystem growth:
+- Publish API/SDK guidance and extension hooks for third-party builders.
+
+## 11. Non-goals (for now)
 
 - Heavy social/community features
 - Native mobile app before web workflow stabilizes
 - Complex enterprise admin features
 
-## 11. Maintenance Ownership Notes
+## 12. Maintenance Ownership Notes
 
 When extending features:
 - Update this plan if priorities or milestones change

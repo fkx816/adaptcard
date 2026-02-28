@@ -1,0 +1,20 @@
+<svg width="1200" height="420" viewBox="0 0 1200 420" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="adaptcard open learning engine">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="acc" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#06b6d4"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="420" fill="url(#bg)"/>
+  <circle cx="170" cy="90" r="120" fill="#334155" opacity="0.35"/>
+  <circle cx="1050" cy="340" r="150" fill="#0ea5e9" opacity="0.18"/>
+  <rect x="70" y="70" width="1060" height="280" rx="20" fill="#0b1220" stroke="#1f2937"/>
+  <text x="110" y="160" fill="#e2e8f0" font-size="52" font-family="Segoe UI, Arial, sans-serif" font-weight="700">adaptcard</text>
+  <text x="110" y="210" fill="#cbd5e1" font-size="28" font-family="Segoe UI, Arial, sans-serif">Open Learning Engine for adaptive practice</text>
+  <rect x="110" y="250" width="460" height="8" rx="4" fill="url(#acc)"/>
+  <text x="110" y="300" fill="#94a3b8" font-size="24" font-family="Segoe UI, Arial, sans-serif">FSRS scheduling + AI-generated assessment + API-first architecture</text>
+</svg>
