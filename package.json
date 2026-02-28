@@ -8,7 +8,8 @@
     "dev": "node ./node_modules/tsx/dist/cli.mjs watch src/server.ts",
     "build": "node ./node_modules/typescript/bin/tsc -p tsconfig.json",
     "start": "node dist/server.js",
-    "lint": "node ./node_modules/typescript/bin/tsc --noEmit"
+    "lint": "node ./node_modules/typescript/bin/tsc --noEmit",
+    "test": "node ./node_modules/tsx/dist/cli.mjs --test src/**/*.test.ts"
   },
   "keywords": [
     "learning-engine",

@@ -184,15 +184,27 @@ Definition of done:
 ## 9. Immediate Next Tasks (Top 10)
 
 1. Add auth and user isolation
-2. Add test framework (Vitest) and first critical tests
+2. Expand automated tests to include review flow integration and route-level validation coverage
 3. Implement deck/collection model
 4. Implement question type strategy
-5. Add robust scoring normalization
-6. Add review session tracking endpoint
-7. Add CI workflow
-8. Add OpenAPI spec draft
-9. Start polished frontend implementation from `docs/FRONTEND_PRODUCT_SPEC.md`
-10. Add telemetry events for product metrics
+5. Add review session tracking endpoint
+6. Add CI workflow
+7. Add OpenAPI spec draft
+8. Start polished frontend implementation from `docs/FRONTEND_PRODUCT_SPEC.md`
+9. Add telemetry events for product metrics
+10. Add API idempotency guard for quiz submission
+
+### 2026-02-28 Maintenance update
+
+Completed this cycle:
+- Implemented deterministic answer normalization in scoring (case/diacritics/punctuation/article handling + numeric equivalence).
+- Added automated tests for answer evaluation behavior.
+- Added standardized API error envelope and explicit error codes for known failures.
+
+Next cycle focus:
+- Build deck and note/card split baseline for Anki parity M1.
+- Add end-to-end integration tests for create -> generate -> submit -> next due.
+- Draft OpenAPI spec with error response schemas aligned to current handlers.
 
 ## 10. Strategic expansion tracks
 

@@ -81,3 +81,9 @@ M1: Browser + decks + notes/card split complete
 M2: Full review controls comparable to Anki daily usage
 M3: Import/export and advanced query support complete
 M4: Plugin API alpha and public extension docs
+
+## 2026-02-28 progress note
+
+- Review scoring reliability improved with deterministic normalization rules and unit test coverage.
+- API failure modes now return stable machine-readable error codes, which unblocks future browser-side error UX.
+- Priority remains on M1 data model work (decks, notes, cards) in the next cycle.

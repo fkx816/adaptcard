@@ -96,6 +96,34 @@ curl -X POST http://127.0.0.1:8787/quiz/submit \
 
 Response includes `correctRate`, mapped `rating`, and `nextDueAt`.
 
+## API error contract
+
+All non-2xx responses return a consistent envelope:
+
+```json
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Request validation failed",
+    "details": []
+  }
+}
+```
+
+Common error codes:
+- `VALIDATION_ERROR`
+- `KNOWLEDGE_POINT_NOT_FOUND`
+- `CARD_NOT_FOUND`
+- `INTERNAL_ERROR`
+
+## Quality checks
+
+```bash
+npm run lint
+npm run test
+npm run build
+```
+
 ## Scenario demo requests
 
 These examples show how the same engine works across very different domains.

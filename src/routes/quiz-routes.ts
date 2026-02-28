@@ -6,6 +6,7 @@ import { cleanupGeneratedCards, createGeneratedCard } from "../models/generated-
 import { generateQuiz } from "../services/quiz-service.js";
 import { scoreAnswers } from "../services/review-service.js";
 import type { SubmitAnswer } from "../types.js";
+import { AppError } from "../errors.js";
 
 const generateSchema = z.object({
   knowledgePointId: z.string().min(1),
@@ -28,8 +29,7 @@ export async function registerQuizRoutes(app: FastifyInstance): Promise<void> {
     const body = generateSchema.parse(request.body);
     const knowledgePoint = getKnowledgePointById(body.knowledgePointId);
     if (!knowledgePoint) {
-      reply.code(404).send({ error: "Knowledge point not found" });
-      return;
+      throw new AppError(404, "KNOWLEDGE_POINT_NOT_FOUND", "Knowledge point not found");
     }
 
     cleanupGeneratedCards(new Date().toISOString());

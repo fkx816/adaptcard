@@ -16,6 +16,13 @@ Build:
 npm run build
 ```
 
+Validation checks:
+```bash
+npm run lint
+npm run test
+npm run build
+```
+
 Health check:
 ```bash
 curl http://127.0.0.1:8787/health
