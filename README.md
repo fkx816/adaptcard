@@ -96,6 +96,11 @@ Response includes `correctRate`, mapped `rating`, and `nextDueAt`.
 - User/accounts + multi-tenant data isolation
 - Frontend learner UI
 
+## Planning and maintenance
+
+- Full roadmap: `docs/DEVELOPMENT_PLAN.md`
+- Maintenance runbook: `docs/MAINTENANCE_RUNBOOK.md`
+
 ## Open-source docs
 
 - `LICENSE`
