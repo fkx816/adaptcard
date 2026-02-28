@@ -1,58 +1,104 @@
 # adaptcard
 
-An open-source FSRS-powered learning tool that turns knowledge points into adaptive, AI-generated daily quizzes.
+FSRS-powered learning backend that stores knowledge points and generates adaptive daily quizzes with AI.
 
-## Why adaptcard
+## What it does
 
-Traditional flashcards are static. adaptcard treats each knowledge point as a living unit:
-- Store core knowledge points in a durable database.
-- Generate fresh quiz items on demand (daily and per review event).
-- Estimate mastery from quiz performance.
-- Schedule reviews with FSRS for efficient spaced repetition.
-- Support local AI models for privacy and offline-friendly workflows.
+- Stores knowledge points (`front`, `back`, context, tags)
+- Uses FSRS scheduling to decide next review time
+- Generates fresh quiz questions on demand (mock, OpenAI-compatible, or Ollama)
+- Scores mastery by answer accuracy and maps it to FSRS ratings
+- Saves generated cards for 3 days by default, with optional pinning
 
-## Core features
+## Stack
 
-- Knowledge-point-first data model
-- FSRS-based review scheduling
-- Daily dynamic quiz generation
-- 3-day ephemeral generated cards (with optional long-term save)
-- Mastery scoring from answer accuracy
-- Pluggable AI backend (cloud API or local model)
+- TypeScript + Fastify
+- SQLite (`better-sqlite3`)
+- FSRS (`ts-fsrs`)
 
-## Planned architecture
-
-- `core/` - scheduling, mastery scoring, review logic
-- `ai/` - prompt templates and model adapters
-- `storage/` - knowledge point and card persistence
-- `api/` - service endpoints
-- `ui/` - learner interface
-
-## Quick start (placeholder)
-
-This repository is under active bootstrapping.
+## Quick start
 
 ```bash
-git clone https://github.com/<your-username>/adaptcard.git
+git clone https://github.com/fkx816/adaptcard.git
 cd adaptcard
+npm install
+cp .env.example .env
+npm run dev
 ```
 
-## Open-source readiness
+Health check:
 
-- License: MIT
-- Contribution guide: see `CONTRIBUTING.md`
-- Security policy: see `SECURITY.md`
-- Code of conduct: see `CODE_OF_CONDUCT.md`
+```bash
+curl http://127.0.0.1:8787/health
+```
 
-## Roadmap
+## Environment variables
 
-- [ ] Define v0 data schema for knowledge points and generated cards
-- [ ] Implement FSRS scheduler integration
-- [ ] Implement mastery scoring strategy
-- [ ] Add first AI adapter (OpenAI-compatible API)
-- [ ] Add first local model adapter (Ollama)
-- [ ] Ship CLI prototype
+- `PORT` - HTTP port
+- `DATABASE_PATH` - SQLite path
+- `AI_PROVIDER` - `mock` | `openai` | `ollama`
+- `OPENAI_BASE_URL` / `OPENAI_API_KEY` / `OPENAI_MODEL`
+- `OLLAMA_BASE_URL` / `OLLAMA_MODEL`
 
-## Status
+See `.env.example`.
 
-Early-stage MVP planning and repository setup.
+## API (MVP)
+
+### 1) Create knowledge point
+
+```bash
+curl -X POST http://127.0.0.1:8787/knowledge-points \
+  -H 'content-type: application/json' \
+  -d '{"front":"mother","back":"妈妈","tags":["english","family"]}'
+```
+
+### 2) Get next due review item
+
+```bash
+curl http://127.0.0.1:8787/reviews/next
+```
+
+### 3) Generate quiz for a knowledge point
+
+```bash
+curl -X POST http://127.0.0.1:8787/quiz/generate \
+  -H 'content-type: application/json' \
+  -d '{"knowledgePointId":"<id>","count":3,"pin":false}'
+```
+
+### 4) Submit quiz answers
+
+```bash
+curl -X POST http://127.0.0.1:8787/quiz/submit \
+  -H 'content-type: application/json' \
+  -d '{
+    "cardId":"<card-id>",
+    "answers":[
+      {"questionId":"q1","userAnswer":"妈妈"}
+    ]
+  }'
+```
+
+Response includes `correctRate`, mapped `rating`, and `nextDueAt`.
+
+## Project layout
+
+- `src/server.ts` - app entry
+- `src/db/` - sqlite + migration
+- `src/models/` - persistence access
+- `src/services/` - FSRS, quiz generation, review scoring
+- `src/routes/` - API routes
+
+## Next milestones
+
+- Better question types (cloze, multiple choice, reverse recall)
+- Explainable mastery model beyond raw accuracy
+- User/accounts + multi-tenant data isolation
+- Frontend learner UI
+
+## Open-source docs
+
+- `LICENSE`
+- `CONTRIBUTING.md`
+- `SECURITY.md`
+- `CODE_OF_CONDUCT.md`

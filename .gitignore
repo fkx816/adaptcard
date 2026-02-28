@@ -11,6 +11,10 @@ __pycache__/
 .env
 .env.*
 
+# Runtime data
+data/*.db
+data/*.db-*
+
 # OS
 .DS_Store
 Thumbs.db

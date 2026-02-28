@@ -1,0 +1,34 @@
+{
+  "name": "adaptcard",
+  "version": "0.1.0",
+  "description": "FSRS-powered adaptive learning with AI-generated quizzes",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "node ./node_modules/tsx/dist/cli.mjs watch src/server.ts",
+    "build": "node ./node_modules/typescript/bin/tsc -p tsconfig.json",
+    "start": "node dist/server.js",
+    "lint": "node ./node_modules/typescript/bin/tsc --noEmit"
+  },
+  "keywords": [
+    "fsrs",
+    "flashcards",
+    "learning",
+    "ai"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "dotenv": "^16.4.5",
+    "fastify": "^5.2.1",
+    "nanoid": "^5.1.5",
+    "ts-fsrs": "^4.5.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/node": "^22.19.13",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
