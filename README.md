@@ -2,19 +2,26 @@
 
 Open Learning Engine for adaptive practice, powered by FSRS scheduling and AI-generated assessment.
 
-## Positioning
+> Build adaptive learning workflows for any domain: history, algorithms, sports, language, certifications, and more.
 
-adaptcard is designed as a general-purpose learning engine, not a single-purpose flashcard app.
-It can power language learning, exam prep, technical training, onboarding, and custom education products.
+## Why adaptcard
 
-## What it does
+Most learning tools are either static flashcards or heavy LMS platforms.
+adaptcard is the middle layer: a composable engine that gives you adaptive scheduling + dynamic assessment generation.
 
-- Stores domain-agnostic knowledge points (`front`, `back`, context, tags)
-- Uses FSRS scheduling to decide next review time
-- Generates fresh assessments on demand (mock, OpenAI-compatible, or Ollama)
-- Scores mastery by answer accuracy and maps it to FSRS ratings
-- Saves generated cards for 3 days by default, with optional pinning
-- Exposes API-first workflows for product integration
+- Domain-agnostic knowledge point model
+- FSRS-powered review scheduling
+- AI-generated fresh quiz content per review session
+- API-first backend for integration into your own product
+- Local-model support (Ollama) for privacy-sensitive setups
+
+## Core capabilities
+
+- Store reusable knowledge points (`front`, `back`, `context`, `tags`)
+- Generate quiz sets on demand (`mock`, `openai`, `ollama`)
+- Map answer accuracy into FSRS rating updates
+- Keep generated cards for 3 days by default (with optional pinning)
+- Return next due review based on spaced repetition state
 
 ## Stack
 
@@ -87,6 +94,57 @@ curl -X POST http://127.0.0.1:8787/quiz/submit \
 
 Response includes `correctRate`, mapped `rating`, and `nextDueAt`.
 
+## Scenario demo requests
+
+These examples show how the same engine works across very different domains.
+
+### A) History
+
+```bash
+curl -X POST http://127.0.0.1:8787/knowledge-points \
+  -H 'content-type: application/json' \
+  -d '{
+    "front":"What triggered World War I?",
+    "back":"The assassination of Archduke Franz Ferdinand in 1914.",
+    "context":"Early 20th century Europe, alliance tensions",
+    "tags":["history","ww1"]
+  }'
+```
+
+### B) Algorithms
+
+```bash
+curl -X POST http://127.0.0.1:8787/knowledge-points \
+  -H 'content-type: application/json' \
+  -d '{
+    "front":"When should you use BFS instead of DFS?",
+    "back":"Use BFS when shortest path in an unweighted graph matters.",
+    "context":"Graph traversal strategy selection",
+    "tags":["algorithms","graphs"]
+  }'
+```
+
+### C) Sports
+
+```bash
+curl -X POST http://127.0.0.1:8787/knowledge-points \
+  -H 'content-type: application/json' \
+  -d '{
+    "front":"What is progressive overload?",
+    "back":"Gradually increasing training stress over time to drive adaptation.",
+    "context":"Strength training fundamentals",
+    "tags":["sports","fitness","training"]
+  }'
+```
+
+Then run:
+
+```bash
+curl -X POST http://127.0.0.1:8787/quiz/generate \
+  -H 'content-type: application/json' \
+  -d '{"knowledgePointId":"<id-from-create>","count":4,"pin":false}'
+```
+
 ## Project layout
 
 - `src/server.ts` - app entry
@@ -95,12 +153,12 @@ Response includes `correctRate`, mapped `rating`, and `nextDueAt`.
 - `src/services/` - FSRS, quiz generation, review scoring
 - `src/routes/` - API routes
 
-## Next milestones
+## Roadmap highlights
 
-- Better question types (cloze, multiple choice, reverse recall, scenario)
+- More question strategies (cloze, reverse recall, scenario simulation)
 - Explainable mastery model beyond raw accuracy
 - User/accounts + multi-tenant data isolation
-- Frontend learner UI
+- Frontend learner workspace
 - SDK and integration guides for external products
 
 ## Planning and maintenance
