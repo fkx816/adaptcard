@@ -25,6 +25,14 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 - Keep generated cards for 3 days by default (with optional pinning)
 - Return next due review based on spaced repetition state
 
+## MVP feature status
+
+- ✅ Knowledge point create/list and due-item retrieval
+- ✅ AI quiz generation + deterministic scoring normalization
+- ✅ Review session lifecycle (`start` / `progress` / `finish`)
+- ✅ Deck hierarchy baseline (`create` / `list` / `detail` / `update` / `delete leaf`)
+- 🔄 Next: notes/cards split and browser-grade filtering
+
 ## Stack
 
 - TypeScript + Fastify
@@ -113,7 +121,32 @@ curl -X POST http://127.0.0.1:8787/quiz/submit \
 
 Response includes `correctRate`, mapped `rating`, and `nextDueAt`.
 
-### 6) Finish and inspect review session
+### 6) Create and organize decks
+
+```bash
+curl -X POST http://127.0.0.1:8787/decks \
+  -H 'content-type: application/json' \
+  -d '{"name":"Algorithms"}'
+
+curl -X POST http://127.0.0.1:8787/decks \
+  -H 'content-type: application/json' \
+  -d '{"name":"Graph Theory","parentId":"<algorithms-deck-id>"}'
+
+curl http://127.0.0.1:8787/decks
+curl http://127.0.0.1:8787/decks/<deck-id>
+```
+
+Update and delete constraints:
+
+```bash
+curl -X PATCH http://127.0.0.1:8787/decks/<deck-id> \
+  -H 'content-type: application/json' \
+  -d '{"name":"Algorithms Core"}'
+
+curl -X DELETE http://127.0.0.1:8787/decks/<leaf-deck-id>
+```
+
+### 7) Finish and inspect review session
 
 ```bash
 curl -X POST http://127.0.0.1:8787/review-sessions/<session-id>/finish \
@@ -144,6 +177,10 @@ Common error codes:
 - `INTERNAL_ERROR`
 - `REVIEW_SESSION_NOT_FOUND`
 - `REVIEW_SESSION_ALREADY_FINISHED`
+- `DECK_NOT_FOUND`
+- `PARENT_DECK_NOT_FOUND`
+- `INVALID_DECK_PARENT`
+- `DECK_HAS_CHILDREN`
 
 ## Quality checks
 

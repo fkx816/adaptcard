@@ -116,7 +116,9 @@ Docs to keep aligned:
 - `docs/DEVELOPMENT_PLAN.md`
 - `docs/MAINTENANCE_RUNBOOK.md`
 
-## 7. Cycle notes (2026-03-03)
+## 7. Cycle notes
+
+### 2026-03-03 (Run A)
 
 Completed:
 - Added review session tracking API and storage.
@@ -127,6 +129,18 @@ Next cycle priorities:
 - Deck baseline data model and CRUD.
 - Session flow integration tests.
 - OpenAPI contract publication for current endpoints.
+
+### 2026-03-03 (Run B)
+
+Completed:
+- Added deck hierarchy storage and CRUD API surface.
+- Added API guardrails for invalid parent assignment and non-leaf deletion.
+- Upgraded README presentation with feature status and deck examples.
+
+Next cycle priorities:
+- Add integration tests for deck routes and hierarchy constraints.
+- Start notes/cards model split with deck linkage.
+- Publish OpenAPI contract for shipped endpoints.
 
 ## 8. Maintainer Workflow
 

@@ -65,6 +65,15 @@ export function migrate(): void {
       updated_at TEXT NOT NULL
     );
 
+    CREATE TABLE IF NOT EXISTS decks (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      parent_id TEXT,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (parent_id) REFERENCES decks(id)
+    );
+
     ALTER TABLE review_logs ADD COLUMN IF NOT EXISTS session_id TEXT;
   `);
 }

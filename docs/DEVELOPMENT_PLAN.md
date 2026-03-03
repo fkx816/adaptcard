@@ -201,7 +201,7 @@ Completed this cycle:
 - Added automated tests for answer evaluation behavior.
 - Added standardized API error envelope and explicit error codes for known failures.
 
-### 2026-03-03 Maintenance update
+### 2026-03-03 Maintenance update (Run A)
 
 Completed this cycle:
 - Implemented review session tracking endpoints (`start`, `get`, `finish`) and persistence model.
@@ -216,6 +216,22 @@ Next cycle focus:
 - Implement deck entity baseline (CRUD + lightweight hierarchy field) for M1 parity.
 - Add integration tests for session flow: start -> generate -> submit(with session) -> finish.
 - Publish initial `openapi.yaml` including error envelope and review session endpoints.
+
+### 2026-03-03 Maintenance update (Run B)
+
+Completed this cycle:
+- Implemented deck baseline APIs (`POST/GET/GET by id/PATCH/DELETE`) with parent-child hierarchy support.
+- Added persistence model and DB migration for `decks` with parent FK constraints.
+- Improved README presentation with MVP feature status and explicit deck workflow examples.
+
+Priority shifts:
+- Deck parity moved from planned to shipped baseline under M1.
+- Integration and contract verification become higher priority now that deck and review-session contracts are both available.
+
+Next cycle focus:
+- Add automated integration tests for deck CRUD and hierarchy constraints.
+- Add notes/cards split scaffolding and deck linkage to progress M1 parity.
+- Publish `openapi.yaml` for current endpoints (knowledge points, quiz, review sessions, decks).
 
 ## 10. Strategic expansion tracks
 

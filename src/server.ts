@@ -4,6 +4,7 @@ import { config } from "./config.js";
 import { registerKnowledgePointRoutes } from "./routes/knowledge-point-routes.js";
 import { registerQuizRoutes } from "./routes/quiz-routes.js";
 import { registerReviewSessionRoutes } from "./routes/review-session-routes.js";
+import { registerDeckRoutes } from "./routes/deck-routes.js";
 import { AppError } from "./errors.js";
 
 const app = Fastify({ logger: true });
@@ -48,6 +49,7 @@ app.get("/health", async () => ({ ok: true, service: "adaptcard" }));
 await app.register(registerKnowledgePointRoutes);
 await app.register(registerQuizRoutes);
 await app.register(registerReviewSessionRoutes);
+await app.register(registerDeckRoutes);
 
 try {
   await app.listen({ port: config.port, host: "0.0.0.0" });

@@ -87,8 +87,14 @@ M4: Plugin API alpha and public extension docs
 - Review scoring reliability improved with deterministic normalization rules and unit test coverage.
 - API failure modes now return stable machine-readable error codes, which unblocks future browser-side error UX.
 
-## 2026-03-03 progress note
+## 2026-03-03 progress note (Run A)
 
 - Added review-session persistence and APIs, establishing an audit trail foundation for future browser history and undo workflows.
 - Quiz submissions can now bind to an active review session, enabling session-level stats accumulation.
 - M1 priority remains unchanged: decks + notes/cards split are still the critical parity gap.
+
+## 2026-03-03 progress note (Run B)
+
+- Delivered deck hierarchy baseline APIs and storage, closing the first critical M1 parity item from P0.
+- Added guardrails for invalid deck parent assignment and leaf-only delete behavior.
+- Critical parity gap is now concentrated on notes/cards split and browser-grade filtering/sorting UX.
