@@ -6,8 +6,9 @@ import { getKnowledgePointById, updateKnowledgePointReview } from "../models/kno
 import { masteryToRating, scheduleAfterReview } from "./fsrs-service.js";
 import { AppError } from "../errors.js";
 import { isAnswerCorrect } from "./answer-evaluator.js";
+import { bumpReviewSessionProgress } from "../models/review-session.js";
 
-export function scoreAnswers(cardId: string, answers: SubmitAnswer[]): {
+export function scoreAnswers(cardId: string, answers: SubmitAnswer[], reviewSessionId?: string): {
   total: number;
   correct: number;
   correctRate: number;
@@ -52,11 +53,21 @@ export function scoreAnswers(cardId: string, answers: SubmitAnswer[]): {
     id: nanoid(12),
     knowledge_point_id: kp.id,
     card_id: card.id,
+    session_id: reviewSessionId ?? null,
     reviewed_at: now.toISOString(),
     rating,
     correct_rate: correctRate,
     detail: JSON.stringify({ answers })
   });
+
+  if (reviewSessionId) {
+    bumpReviewSessionProgress({
+      id: reviewSessionId,
+      reviewed_count: 1,
+      correct_count: correct,
+      updated_at: now.toISOString()
+    });
+  }
 
   return {
     total,

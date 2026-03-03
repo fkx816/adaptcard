@@ -22,6 +22,7 @@ Goal: deliver a polished, high-trust UI that feels as smooth as Anki while moder
 - Prompt/answer reveal flow
 - Confidence + correctness input
 - Immediate feedback and next-due explanation
+- Session lifecycle controls (start, live accuracy, finish summary)
 
 3. Card browser (Anki parity anchor)
 - Fast search/filter

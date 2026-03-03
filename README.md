@@ -59,6 +59,14 @@ See `.env.example`.
 
 ## API (MVP)
 
+### Recommended review flow
+
+1) Create a knowledge point
+2) Start a review session (`/review-sessions/start`)
+3) Generate quiz cards (`/quiz/generate`)
+4) Submit answers with `reviewSessionId`
+5) Finish session (`/review-sessions/:id/finish`) and read summary
+
 ### 1) Create knowledge point
 
 ```bash
@@ -73,7 +81,15 @@ curl -X POST http://127.0.0.1:8787/knowledge-points \
 curl http://127.0.0.1:8787/reviews/next
 ```
 
-### 3) Generate quiz for a knowledge point
+### 3) Start a review session
+
+```bash
+curl -X POST http://127.0.0.1:8787/review-sessions/start \
+  -H 'content-type: application/json' \
+  -d '{}'
+```
+
+### 4) Generate quiz for a knowledge point
 
 ```bash
 curl -X POST http://127.0.0.1:8787/quiz/generate \
@@ -81,13 +97,14 @@ curl -X POST http://127.0.0.1:8787/quiz/generate \
   -d '{"knowledgePointId":"<id>","count":3,"pin":false}'
 ```
 
-### 4) Submit quiz answers
+### 5) Submit quiz answers
 
 ```bash
 curl -X POST http://127.0.0.1:8787/quiz/submit \
   -H 'content-type: application/json' \
   -d '{
     "cardId":"<card-id>",
+    "reviewSessionId":"<session-id>",
     "answers":[
       {"questionId":"q1","userAnswer":"O(log n) divide-and-conquer lookup"}
     ]
@@ -95,6 +112,16 @@ curl -X POST http://127.0.0.1:8787/quiz/submit \
 ```
 
 Response includes `correctRate`, mapped `rating`, and `nextDueAt`.
+
+### 6) Finish and inspect review session
+
+```bash
+curl -X POST http://127.0.0.1:8787/review-sessions/<session-id>/finish \
+  -H 'content-type: application/json' \
+  -d '{}'
+
+curl http://127.0.0.1:8787/review-sessions/<session-id>
+```
 
 ## API error contract
 
@@ -115,6 +142,8 @@ Common error codes:
 - `KNOWLEDGE_POINT_NOT_FOUND`
 - `CARD_NOT_FOUND`
 - `INTERNAL_ERROR`
+- `REVIEW_SESSION_NOT_FOUND`
+- `REVIEW_SESSION_ALREADY_FINISHED`
 
 ## Quality checks
 
@@ -192,6 +221,13 @@ curl -X POST http://127.0.0.1:8787/quiz/generate \
 - SDK and integration guides for external products
 - Anki-level browser and card management parity
 - One-click deployment profiles
+
+## Production-readiness snapshot
+
+- Deterministic scoring normalization for safer answer grading
+- Stable machine-readable error envelope for all non-2xx responses
+- Review session tracking endpoints for analytics-ready study runs
+- SQLite WAL mode enabled by default for local durability
 
 ## Planning and maintenance
 

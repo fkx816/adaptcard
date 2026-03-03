@@ -201,10 +201,21 @@ Completed this cycle:
 - Added automated tests for answer evaluation behavior.
 - Added standardized API error envelope and explicit error codes for known failures.
 
+### 2026-03-03 Maintenance update
+
+Completed this cycle:
+- Implemented review session tracking endpoints (`start`, `get`, `finish`) and persistence model.
+- Extended quiz submission to optionally attach `reviewSessionId` so scoring updates session progress.
+- Upgraded README workflow quality with a guided session-based API path and production-readiness snapshot.
+
+Priority shifts:
+- Keep M1 parity focus, but move review analytics groundwork to active because session data is now recorded.
+- Treat OpenAPI publishing as immediate follow-up to lock new review session contracts.
+
 Next cycle focus:
-- Build deck and note/card split baseline for Anki parity M1.
-- Add end-to-end integration tests for create -> generate -> submit -> next due.
-- Draft OpenAPI spec with error response schemas aligned to current handlers.
+- Implement deck entity baseline (CRUD + lightweight hierarchy field) for M1 parity.
+- Add integration tests for session flow: start -> generate -> submit(with session) -> finish.
+- Publish initial `openapi.yaml` including error envelope and review session endpoints.
 
 ## 10. Strategic expansion tracks
 

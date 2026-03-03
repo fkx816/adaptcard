@@ -116,7 +116,19 @@ Docs to keep aligned:
 - `docs/DEVELOPMENT_PLAN.md`
 - `docs/MAINTENANCE_RUNBOOK.md`
 
-## 7. Maintainer Workflow
+## 7. Cycle notes (2026-03-03)
+
+Completed:
+- Added review session tracking API and storage.
+- Linked quiz submission flow to optional session progress updates.
+- Refreshed README onboarding with a session-oriented review flow.
+
+Next cycle priorities:
+- Deck baseline data model and CRUD.
+- Session flow integration tests.
+- OpenAPI contract publication for current endpoints.
+
+## 8. Maintainer Workflow
 
 Preferred workflow:
 1. Create issue tied to roadmap item

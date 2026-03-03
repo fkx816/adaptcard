@@ -47,12 +47,25 @@ export function migrate(): void {
       id TEXT PRIMARY KEY,
       knowledge_point_id TEXT NOT NULL,
       card_id TEXT,
+      session_id TEXT,
       reviewed_at TEXT NOT NULL,
       rating INTEGER NOT NULL,
       correct_rate REAL NOT NULL,
       detail TEXT NOT NULL,
       FOREIGN KEY (knowledge_point_id) REFERENCES knowledge_points(id)
     );
+
+    CREATE TABLE IF NOT EXISTS review_sessions (
+      id TEXT PRIMARY KEY,
+      started_at TEXT NOT NULL,
+      ended_at TEXT,
+      reviewed_count INTEGER NOT NULL DEFAULT 0,
+      correct_count INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
+
+    ALTER TABLE review_logs ADD COLUMN IF NOT EXISTS session_id TEXT;
   `);
 }
 

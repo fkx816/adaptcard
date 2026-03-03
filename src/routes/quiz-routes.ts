@@ -16,6 +16,7 @@ const generateSchema = z.object({
 
 const submitSchema = z.object({
   cardId: z.string().min(1),
+  reviewSessionId: z.string().min(1).optional(),
   answers: z.array(
     z.object({
       questionId: z.string().min(1),
@@ -65,7 +66,7 @@ export async function registerQuizRoutes(app: FastifyInstance): Promise<void> {
 
   app.post("/quiz/submit", async (request) => {
     const body = submitSchema.parse(request.body);
-    const scored = scoreAnswers(body.cardId, body.answers as SubmitAnswer[]);
+    const scored = scoreAnswers(body.cardId, body.answers as SubmitAnswer[], body.reviewSessionId);
     return scored;
   });
 }

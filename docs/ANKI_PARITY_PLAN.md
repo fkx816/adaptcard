@@ -86,4 +86,9 @@ M4: Plugin API alpha and public extension docs
 
 - Review scoring reliability improved with deterministic normalization rules and unit test coverage.
 - API failure modes now return stable machine-readable error codes, which unblocks future browser-side error UX.
-- Priority remains on M1 data model work (decks, notes, cards) in the next cycle.
+
+## 2026-03-03 progress note
+
+- Added review-session persistence and APIs, establishing an audit trail foundation for future browser history and undo workflows.
+- Quiz submissions can now bind to an active review session, enabling session-level stats accumulation.
+- M1 priority remains unchanged: decks + notes/cards split are still the critical parity gap.
