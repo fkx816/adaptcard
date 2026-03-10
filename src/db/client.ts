@@ -73,6 +73,34 @@ export function migrate(): void {
       updated_at TEXT NOT NULL,
       FOREIGN KEY (parent_id) REFERENCES decks(id)
     );
+
+    CREATE TABLE IF NOT EXISTS notes (
+      id TEXT PRIMARY KEY,
+      deck_id TEXT NOT NULL,
+      knowledge_point_id TEXT,
+      front TEXT NOT NULL,
+      back TEXT NOT NULL,
+      tags TEXT NOT NULL DEFAULT '[]',
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (deck_id) REFERENCES decks(id),
+      FOREIGN KEY (knowledge_point_id) REFERENCES knowledge_points(id)
+    );
+
+    CREATE TABLE IF NOT EXISTS cards (
+      id TEXT PRIMARY KEY,
+      note_id TEXT NOT NULL,
+      deck_id TEXT NOT NULL,
+      card_type TEXT NOT NULL DEFAULT 'basic',
+      state TEXT NOT NULL DEFAULT 'new',
+      due_at TEXT NOT NULL,
+      reps INTEGER NOT NULL DEFAULT 0,
+      lapses INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL,
+      FOREIGN KEY (note_id) REFERENCES notes(id),
+      FOREIGN KEY (deck_id) REFERENCES decks(id)
+    );
   `);
 
   const reviewLogColumns = db
@@ -82,6 +110,13 @@ export function migrate(): void {
   if (!reviewLogColumns.some((column) => column.name === "session_id")) {
     db.exec("ALTER TABLE review_logs ADD COLUMN session_id TEXT");
   }
+
+  db.exec(`
+    CREATE INDEX IF NOT EXISTS idx_notes_deck_id ON notes(deck_id);
+    CREATE INDEX IF NOT EXISTS idx_cards_deck_id ON cards(deck_id);
+    CREATE INDEX IF NOT EXISTS idx_cards_state ON cards(state);
+    CREATE INDEX IF NOT EXISTS idx_cards_due_at ON cards(due_at);
+  `);
 }
 
 migrate();

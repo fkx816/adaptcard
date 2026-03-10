@@ -104,3 +104,9 @@ M4: Plugin API alpha and public extension docs
 - Added integration-level route tests for deck hierarchy behavior, covering create/detail/delete constraints and invalid parent assignment.
 - Promoted app bootstrap into a reusable `buildApp()` entrypoint to support parity-focused endpoint verification.
 - M1 deck baseline now has regression protection; next parity blocker is notes/cards model separation with browser query primitives.
+
+## 2026-03-09 progress note (Run D)
+
+- Delivered notes/cards baseline split with deck linkage and default card creation on note insertion.
+- Shipped browser query MVP endpoint for cards (`search`, `deck`, `state`, `sort`, `pagination`) with integration tests.
+- M1 parity blocker shifted from structural data model to control surface parity (bulk actions + suspend/bury + undo).

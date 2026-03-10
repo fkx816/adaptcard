@@ -32,7 +32,9 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 - ✅ Review session lifecycle (`start` / `progress` / `finish`)
 - ✅ Deck hierarchy baseline (`create` / `list` / `detail` / `update` / `delete leaf`)
 - ✅ Deck hierarchy integration coverage (route-level flow + guardrails)
-- 🔄 Next: notes/cards split and browser-grade filtering
+- ✅ Notes/cards baseline split with deck linkage and default card creation
+- ✅ Card browser query primitives (`search`, `deckId`, `state`, `sortBy`, `sortOrder`, `limit`, `offset`)
+- 🔄 Next: bulk browser actions and card state controls (suspend/bury/undo)
 
 ## API surface at a glance
 
@@ -43,6 +45,8 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 | Quiz generation/submission | `POST /quiz/generate`, `POST /quiz/submit` | ✅ |
 | Review session lifecycle | `POST /review-sessions/start`, `GET /review-sessions/:id`, `POST /review-sessions/:id/finish` | ✅ |
 | Deck hierarchy | `POST /decks`, `GET /decks`, `GET /decks/:id`, `PATCH /decks/:id`, `DELETE /decks/:id` | ✅ |
+| Notes baseline | `POST /notes`, `GET /notes` | ✅ |
+| Card browser query MVP | `GET /cards` | ✅ |
 
 Maintenance cadence: a roadmap-driven hardening cycle runs every 3 days and records outcomes in `docs/DEVELOPMENT_PLAN.md` + `docs/MAINTENANCE_RUNBOOK.md`.
 
@@ -159,7 +163,23 @@ curl -X PATCH http://127.0.0.1:8787/decks/<deck-id> \
 curl -X DELETE http://127.0.0.1:8787/decks/<leaf-deck-id>
 ```
 
-### 7) Finish and inspect review session
+### 7) Create notes and inspect cards (browser MVP)
+
+```bash
+curl -X POST http://127.0.0.1:8787/notes \
+  -H 'content-type: application/json' \
+  -d '{
+    "deckId":"<deck-id>",
+    "front":"When should you use BFS?",
+    "back":"When shortest path in an unweighted graph matters",
+    "tags":["algorithms","graphs"],
+    "cardType":"basic"
+  }'
+
+curl 'http://127.0.0.1:8787/cards?search=shortest&state=new&sortBy=dueAt&sortOrder=asc&limit=20&offset=0'
+```
+
+### 8) Finish and inspect review session
 
 ```bash
 curl -X POST http://127.0.0.1:8787/review-sessions/<session-id>/finish \

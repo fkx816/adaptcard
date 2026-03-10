@@ -154,6 +154,19 @@ Next cycle priorities:
 - Add browser-oriented list/query primitives for card inspectability.
 - Publish initial OpenAPI contract and align it with integration test scenarios.
 
+### 2026-03-09 (Run D)
+
+Completed:
+- Added `notes` and `cards` schema baseline with deck linkage and browser-query indexes.
+- Shipped notes API (`POST /notes`, `GET /notes`) and card browser API (`GET /cards`) with search/filter/sort/pagination.
+- Added integration tests covering cross-deck note creation and card browser query behavior.
+- Improved README presentation quality with notes/cards capability status and practical API examples.
+
+Next cycle priorities:
+- Add card control APIs for suspend/unsuspend and undo-last-review within session scope.
+- Add bulk browser actions (retag + move deck) for parity progress.
+- Publish initial `openapi.yaml` and keep it in lockstep with integration routes.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

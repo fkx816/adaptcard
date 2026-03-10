@@ -249,6 +249,22 @@ Next cycle focus:
 - Add browser-readiness query endpoints (search/sort/pagination primitives) for cards.
 - Publish initial `openapi.yaml` and keep it synced with test-covered route contracts.
 
+### 2026-03-09 Maintenance update (Run D)
+
+Completed this cycle:
+- Implemented notes/cards baseline schema and persistence (`notes`, `cards`) with deck linkage and indexes for browser-style access patterns.
+- Added note creation API that auto-creates an initial card, plus browser-ready card query endpoint with search/filter/sort/pagination primitives.
+- Added route-level integration tests for notes + card browser queries and upgraded README API presentation with new endpoint examples.
+
+Priority shifts:
+- M1 parity has moved from deck-only to a shipped deck + notes/cards baseline, reducing structural risk for browser delivery.
+- Highest remaining M1 gap is now operational card controls (suspend/bury/undo) and OpenAPI contract publication.
+
+Next cycle focus:
+- Implement card state operations (suspend/unsuspend and session-level undo-last-review).
+- Add bulk browser actions for retag/move deck on note/card sets.
+- Publish and validate initial `openapi.yaml` against integration-covered endpoints (decks, notes, cards, sessions).
+
 ## 10. Strategic expansion tracks
 
 Track A - Anki-level completeness:

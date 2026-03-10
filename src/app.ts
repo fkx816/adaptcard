@@ -4,6 +4,8 @@ import { registerKnowledgePointRoutes } from "./routes/knowledge-point-routes.js
 import { registerQuizRoutes } from "./routes/quiz-routes.js";
 import { registerReviewSessionRoutes } from "./routes/review-session-routes.js";
 import { registerDeckRoutes } from "./routes/deck-routes.js";
+import { registerNoteRoutes } from "./routes/note-routes.js";
+import { registerCardRoutes } from "./routes/card-routes.js";
 import { AppError } from "./errors.js";
 
 export async function buildApp(): Promise<FastifyInstance> {
@@ -50,6 +52,8 @@ export async function buildApp(): Promise<FastifyInstance> {
   await app.register(registerQuizRoutes);
   await app.register(registerReviewSessionRoutes);
   await app.register(registerDeckRoutes);
+  await app.register(registerNoteRoutes);
+  await app.register(registerCardRoutes);
 
   return app;
 }
