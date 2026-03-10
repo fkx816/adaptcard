@@ -42,6 +42,23 @@ export function createCard(row: CardRow): void {
   insertStmt.run(row);
 }
 
+const getByIdStmt = db.prepare("SELECT * FROM cards WHERE id = ?");
+
+const updateStateStmt = db.prepare(`
+  UPDATE cards
+  SET state = @state,
+      updated_at = @updated_at
+  WHERE id = @id
+`);
+
+export function getCardById(id: string): CardRow | undefined {
+  return getByIdStmt.get(id) as CardRow | undefined;
+}
+
+export function updateCardState(id: string, state: CardRow["state"], updatedAt: string): void {
+  updateStateStmt.run({ id, state, updated_at: updatedAt });
+}
+
 export function listCards(query: CardQuery): { items: Array<CardRow & { front: string; back: string; tags: string }>; total: number } {
   const whereParts: string[] = [];
   const params: Array<string | number> = [];

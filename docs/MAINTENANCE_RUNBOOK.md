@@ -167,6 +167,18 @@ Next cycle priorities:
 - Add bulk browser actions (retag + move deck) for parity progress.
 - Publish initial `openapi.yaml` and keep it in lockstep with integration routes.
 
+### 2026-03-10 (Run E)
+
+Completed:
+- Added card state control APIs (`POST /cards/:id/suspend`, `POST /cards/:id/unsuspend`).
+- Added integration tests for suspend/unsuspend and card-not-found handling.
+- Refreshed README API/presentation sections to expose new controls and deterministic unsuspend behavior.
+
+Next cycle priorities:
+- Implement session-level undo-last-review with safe review log/state rollback semantics.
+- Add bulk browser actions for retag and deck move to advance parity browser workflows.
+- Publish `openapi.yaml` for current route set and align it with integration-tested behavior.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

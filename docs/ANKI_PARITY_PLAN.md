@@ -110,3 +110,9 @@ M4: Plugin API alpha and public extension docs
 - Delivered notes/cards baseline split with deck linkage and default card creation on note insertion.
 - Shipped browser query MVP endpoint for cards (`search`, `deck`, `state`, `sort`, `pagination`) with integration tests.
 - M1 parity blocker shifted from structural data model to control surface parity (bulk actions + suspend/bury + undo).
+
+## 2026-03-10 progress note (Run E)
+
+- Delivered card suspend/unsuspend control endpoints with integration coverage and stable error contract behavior.
+- Closed one major P1 control item (`Suspended/buried states`) for suspend/unsuspend baseline; bury and undo remain.
+- Primary parity blockers are now undo-last-review and browser bulk operations.

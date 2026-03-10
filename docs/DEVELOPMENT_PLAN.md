@@ -265,6 +265,22 @@ Next cycle focus:
 - Add bulk browser actions for retag/move deck on note/card sets.
 - Publish and validate initial `openapi.yaml` against integration-covered endpoints (decks, notes, cards, sessions).
 
+### 2026-03-10 Maintenance update (Run E)
+
+Completed this cycle:
+- Implemented card state control APIs: `POST /cards/:id/suspend` and `POST /cards/:id/unsuspend`.
+- Added integration tests for suspend/unsuspend flow and `CARD_NOT_FOUND` error behavior.
+- Improved README presentation with explicit card-state API coverage and deterministic unsuspend behavior notes.
+
+Priority shifts:
+- Core suspend/unsuspend parity control is now shipped, reducing operational gap in daily review management.
+- Highest-value parity gaps are now session-level undo and bulk browser operations (retag/move deck).
+
+Next cycle focus:
+- Implement session-level undo-last-review with correctness + FSRS rollback safety checks.
+- Add bulk browser actions for retag and deck move on selected note/card sets.
+- Publish initial `openapi.yaml` for decks/notes/cards/review sessions and keep it synchronized with integration tests.
+
 ## 10. Strategic expansion tracks
 
 Track A - Anki-level completeness:

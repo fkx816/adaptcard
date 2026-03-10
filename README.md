@@ -34,7 +34,8 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 - ✅ Deck hierarchy integration coverage (route-level flow + guardrails)
 - ✅ Notes/cards baseline split with deck linkage and default card creation
 - ✅ Card browser query primitives (`search`, `deckId`, `state`, `sortBy`, `sortOrder`, `limit`, `offset`)
-- 🔄 Next: bulk browser actions and card state controls (suspend/bury/undo)
+- ✅ Card state controls (`POST /cards/:id/suspend`, `POST /cards/:id/unsuspend`)
+- 🔄 Next: session-level undo-last-review and bulk browser actions (retag/move deck)
 
 ## API surface at a glance
 
@@ -47,6 +48,7 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 | Deck hierarchy | `POST /decks`, `GET /decks`, `GET /decks/:id`, `PATCH /decks/:id`, `DELETE /decks/:id` | ✅ |
 | Notes baseline | `POST /notes`, `GET /notes` | ✅ |
 | Card browser query MVP | `GET /cards` | ✅ |
+| Card state controls | `POST /cards/:id/suspend`, `POST /cards/:id/unsuspend` | ✅ |
 
 Maintenance cadence: a roadmap-driven hardening cycle runs every 3 days and records outcomes in `docs/DEVELOPMENT_PLAN.md` + `docs/MAINTENANCE_RUNBOOK.md`.
 
@@ -178,6 +180,17 @@ curl -X POST http://127.0.0.1:8787/notes \
 
 curl 'http://127.0.0.1:8787/cards?search=shortest&state=new&sortBy=dueAt&sortOrder=asc&limit=20&offset=0'
 ```
+
+### 7.5) Suspend / unsuspend a card
+
+```bash
+curl -X POST http://127.0.0.1:8787/cards/<card-id>/suspend
+curl -X POST http://127.0.0.1:8787/cards/<card-id>/unsuspend
+```
+
+Unsuspend behavior is deterministic:
+- returns to `new` when `reps = 0`
+- returns to `review` when `reps > 0`
 
 ### 8) Finish and inspect review session
 

@@ -13,6 +13,8 @@ async function withApp(run: (app: Awaited<ReturnType<typeof buildApp>>) => Promi
 }
 
 test.beforeEach(() => {
+  db.exec("DELETE FROM cards");
+  db.exec("DELETE FROM notes");
   db.exec("DELETE FROM decks");
 });
 

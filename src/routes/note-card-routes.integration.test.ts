@@ -75,3 +75,36 @@ test("notes + cards browser query primitives", async () => {
     assert.deepEqual(notes.json().items[0].tags, ["algorithms", "graphs"]);
   });
 });
+
+test("card suspend and unsuspend controls", async () => {
+  await withApp(async (app) => {
+    const deck = await app.inject({ method: "POST", url: "/decks", payload: { name: "Sports" } });
+    assert.equal(deck.statusCode, 201);
+    const deckId = deck.json().id as string;
+
+    const create = await app.inject({
+      method: "POST",
+      url: "/notes",
+      payload: {
+        deckId,
+        front: "What is VO2 max?",
+        back: "Maximum oxygen uptake during intense exercise",
+        tags: ["sports", "fitness"]
+      }
+    });
+    assert.equal(create.statusCode, 201);
+    const cardId = create.json().cardId as string;
+
+    const suspend = await app.inject({ method: "POST", url: `/cards/${cardId}/suspend` });
+    assert.equal(suspend.statusCode, 200);
+    assert.equal(suspend.json().state, "suspended");
+
+    const unsuspend = await app.inject({ method: "POST", url: `/cards/${cardId}/unsuspend` });
+    assert.equal(unsuspend.statusCode, 200);
+    assert.equal(unsuspend.json().state, "new");
+
+    const notFound = await app.inject({ method: "POST", url: "/cards/nonexistent/unsuspend" });
+    assert.equal(notFound.statusCode, 404);
+    assert.equal(notFound.json().error.code, "CARD_NOT_FOUND");
+  });
+});
