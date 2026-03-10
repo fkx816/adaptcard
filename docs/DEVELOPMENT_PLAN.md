@@ -233,6 +233,22 @@ Next cycle focus:
 - Add notes/cards split scaffolding and deck linkage to progress M1 parity.
 - Publish `openapi.yaml` for current endpoints (knowledge points, quiz, review sessions, decks).
 
+### 2026-03-06 Maintenance update (Run C)
+
+Completed this cycle:
+- Implemented route-level integration test coverage for deck CRUD + hierarchy guardrails (self-parent rejection, non-leaf delete rejection, leaf-first delete flow).
+- Refactored app bootstrap into reusable `buildApp()` so API integration tests can run without process-level server boot.
+- Improved README presentation quality with an API capability matrix and explicit maintenance cadence note.
+
+Priority shifts:
+- Deck baseline is now contract-tested, reducing risk for upcoming note/card model migration.
+- Notes/cards split and browser-facing inspectability become the primary M1 parity gap.
+
+Next cycle focus:
+- Implement notes and cards base schema + model split, linked to existing decks.
+- Add browser-readiness query endpoints (search/sort/pagination primitives) for cards.
+- Publish initial `openapi.yaml` and keep it synced with test-covered route contracts.
+
 ## 10. Strategic expansion tracks
 
 Track A - Anki-level completeness:

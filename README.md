@@ -31,7 +31,20 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 - ✅ AI quiz generation + deterministic scoring normalization
 - ✅ Review session lifecycle (`start` / `progress` / `finish`)
 - ✅ Deck hierarchy baseline (`create` / `list` / `detail` / `update` / `delete leaf`)
+- ✅ Deck hierarchy integration coverage (route-level flow + guardrails)
 - 🔄 Next: notes/cards split and browser-grade filtering
+
+## API surface at a glance
+
+| Capability | Endpoint(s) | Status |
+| --- | --- | --- |
+| Health check | `GET /health` | ✅ |
+| Knowledge points | `POST /knowledge-points`, `GET /knowledge-points`, `GET /reviews/next` | ✅ |
+| Quiz generation/submission | `POST /quiz/generate`, `POST /quiz/submit` | ✅ |
+| Review session lifecycle | `POST /review-sessions/start`, `GET /review-sessions/:id`, `POST /review-sessions/:id/finish` | ✅ |
+| Deck hierarchy | `POST /decks`, `GET /decks`, `GET /decks/:id`, `PATCH /decks/:id`, `DELETE /decks/:id` | ✅ |
+
+Maintenance cadence: a roadmap-driven hardening cycle runs every 3 days and records outcomes in `docs/DEVELOPMENT_PLAN.md` + `docs/MAINTENANCE_RUNBOOK.md`.
 
 ## Stack
 

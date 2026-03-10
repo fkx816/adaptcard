@@ -20,7 +20,7 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "better-sqlite3": "^11.8.1",
+    "better-sqlite3": "^12.6.2",
     "dotenv": "^16.4.5",
     "fastify": "^5.2.1",
     "nanoid": "^5.1.5",

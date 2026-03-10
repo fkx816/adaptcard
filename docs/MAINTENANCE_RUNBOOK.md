@@ -142,6 +142,18 @@ Next cycle priorities:
 - Start notes/cards model split with deck linkage.
 - Publish OpenAPI contract for shipped endpoints.
 
+### 2026-03-06 (Run C)
+
+Completed:
+- Added route-level integration tests for deck CRUD and hierarchy constraints.
+- Refactored server bootstrap into `buildApp()` to make integration testing first-class.
+- Enhanced README presentation with an API surface matrix and explicit maintenance cadence notes.
+
+Next cycle priorities:
+- Implement notes/cards split baseline (schema + model + minimal CRUD linkage to decks).
+- Add browser-oriented list/query primitives for card inspectability.
+- Publish initial OpenAPI contract and align it with integration test scenarios.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

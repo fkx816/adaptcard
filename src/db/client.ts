@@ -73,9 +73,15 @@ export function migrate(): void {
       updated_at TEXT NOT NULL,
       FOREIGN KEY (parent_id) REFERENCES decks(id)
     );
-
-    ALTER TABLE review_logs ADD COLUMN IF NOT EXISTS session_id TEXT;
   `);
+
+  const reviewLogColumns = db
+    .prepare("PRAGMA table_info(review_logs)")
+    .all() as Array<{ name: string }>;
+
+  if (!reviewLogColumns.some((column) => column.name === "session_id")) {
+    db.exec("ALTER TABLE review_logs ADD COLUMN session_id TEXT");
+  }
 }
 
 migrate();

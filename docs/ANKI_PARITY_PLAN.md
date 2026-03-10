@@ -98,3 +98,9 @@ M4: Plugin API alpha and public extension docs
 - Delivered deck hierarchy baseline APIs and storage, closing the first critical M1 parity item from P0.
 - Added guardrails for invalid deck parent assignment and leaf-only delete behavior.
 - Critical parity gap is now concentrated on notes/cards split and browser-grade filtering/sorting UX.
+
+## 2026-03-06 progress note (Run C)
+
+- Added integration-level route tests for deck hierarchy behavior, covering create/detail/delete constraints and invalid parent assignment.
+- Promoted app bootstrap into a reusable `buildApp()` entrypoint to support parity-focused endpoint verification.
+- M1 deck baseline now has regression protection; next parity blocker is notes/cards model separation with browser query primitives.
