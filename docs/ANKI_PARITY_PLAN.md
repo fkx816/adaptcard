@@ -116,3 +116,9 @@ M4: Plugin API alpha and public extension docs
 - Delivered card suspend/unsuspend control endpoints with integration coverage and stable error contract behavior.
 - Closed one major P1 control item (`Suspended/buried states`) for suspend/unsuspend baseline; bury and undo remain.
 - Primary parity blockers are now undo-last-review and browser bulk operations.
+
+## 2026-03-13 progress note (Run F)
+
+- Delivered browser bulk action baseline with `POST /cards/bulk/move-deck` and `POST /cards/bulk/retag`.
+- Added integration coverage for deck migration + retag workflows and missing target deck protection.
+- M1 blocker narrows to undo-last-review + OpenAPI publication for contract reliability.

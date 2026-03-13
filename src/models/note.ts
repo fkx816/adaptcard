@@ -38,3 +38,43 @@ export function listNotes(limit: number, offset: number, deckId?: string): NoteR
 export function getNoteById(id: string): NoteRow | undefined {
   return db.prepare("SELECT * FROM notes WHERE id = ?").get(id) as NoteRow | undefined;
 }
+
+export function getNotesByIds(ids: string[]): NoteRow[] {
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const placeholders = ids.map(() => "?").join(",");
+  return db.prepare(`SELECT * FROM notes WHERE id IN (${placeholders})`).all(...ids) as NoteRow[];
+}
+
+export function updateNoteTags(id: string, tags: string[], updatedAt: string): number {
+  const result = db
+    .prepare(`
+      UPDATE notes
+      SET tags = ?,
+          updated_at = ?
+      WHERE id = ?
+    `)
+    .run(JSON.stringify(tags), updatedAt, id);
+
+  return result.changes;
+}
+
+export function bulkMoveNotesToDeck(noteIds: string[], deckId: string, updatedAt: string): number {
+  if (noteIds.length === 0) {
+    return 0;
+  }
+
+  const placeholders = noteIds.map(() => "?").join(",");
+  const result = db
+    .prepare(
+      `UPDATE notes
+       SET deck_id = ?,
+           updated_at = ?
+       WHERE id IN (${placeholders})`
+    )
+    .run(deckId, updatedAt, ...noteIds);
+
+  return result.changes;
+}

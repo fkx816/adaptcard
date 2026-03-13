@@ -108,3 +108,74 @@ test("card suspend and unsuspend controls", async () => {
     assert.equal(notFound.json().error.code, "CARD_NOT_FOUND");
   });
 });
+
+test("bulk card move-deck and retag actions", async () => {
+  await withApp(async (app) => {
+    const sourceDeck = await app.inject({ method: "POST", url: "/decks", payload: { name: "Algorithms" } });
+    const targetDeck = await app.inject({ method: "POST", url: "/decks", payload: { name: "Systems" } });
+    assert.equal(sourceDeck.statusCode, 201);
+    assert.equal(targetDeck.statusCode, 201);
+
+    const sourceDeckId = sourceDeck.json().id as string;
+    const targetDeckId = targetDeck.json().id as string;
+
+    const createA = await app.inject({
+      method: "POST",
+      url: "/notes",
+      payload: {
+        deckId: sourceDeckId,
+        front: "What is BFS?",
+        back: "Level-order graph traversal",
+        tags: ["algorithms", "graphs"]
+      }
+    });
+    const createB = await app.inject({
+      method: "POST",
+      url: "/notes",
+      payload: {
+        deckId: sourceDeckId,
+        front: "What is paging?",
+        back: "Virtual memory page translation",
+        tags: ["systems", "memory"]
+      }
+    });
+
+    const cardA = createA.json().cardId as string;
+    const cardB = createB.json().cardId as string;
+
+    const moveDeck = await app.inject({
+      method: "POST",
+      url: "/cards/bulk/move-deck",
+      payload: { cardIds: [cardA, cardB], deckId: targetDeckId }
+    });
+    assert.equal(moveDeck.statusCode, 200);
+    assert.equal(moveDeck.json().movedCards, 2);
+
+    const movedCards = await app.inject({ method: "GET", url: `/cards?deckId=${targetDeckId}` });
+    assert.equal(movedCards.statusCode, 200);
+    assert.equal(movedCards.json().items.length, 2);
+
+    const retag = await app.inject({
+      method: "POST",
+      url: "/cards/bulk/retag",
+      payload: { cardIds: [cardA, cardB], addTags: ["priority"], removeTags: ["algorithms"] }
+    });
+    assert.equal(retag.statusCode, 200);
+    assert.equal(retag.json().updatedNotes, 2);
+
+    const notes = await app.inject({ method: "GET", url: "/notes" });
+    assert.equal(notes.statusCode, 200);
+    const noteTags = (notes.json().items as Array<{ tags: string[] }>)
+      .map((note) => note.tags.join("|"))
+      .sort();
+    assert.deepEqual(noteTags, ["graphs|priority", "memory|priority|systems"]);
+
+    const missingDeck = await app.inject({
+      method: "POST",
+      url: "/cards/bulk/move-deck",
+      payload: { cardIds: [cardA], deckId: "missing-deck" }
+    });
+    assert.equal(missingDeck.statusCode, 404);
+    assert.equal(missingDeck.json().error.code, "DECK_NOT_FOUND");
+  });
+});

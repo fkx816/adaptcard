@@ -35,7 +35,8 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 - ✅ Notes/cards baseline split with deck linkage and default card creation
 - ✅ Card browser query primitives (`search`, `deckId`, `state`, `sortBy`, `sortOrder`, `limit`, `offset`)
 - ✅ Card state controls (`POST /cards/:id/suspend`, `POST /cards/:id/unsuspend`)
-- 🔄 Next: session-level undo-last-review and bulk browser actions (retag/move deck)
+- ✅ Bulk browser actions baseline (`POST /cards/bulk/move-deck`, `POST /cards/bulk/retag`)
+- 🔄 Next: session-level undo-last-review and OpenAPI contract publication
 
 ## API surface at a glance
 
@@ -49,6 +50,7 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 | Notes baseline | `POST /notes`, `GET /notes` | ✅ |
 | Card browser query MVP | `GET /cards` | ✅ |
 | Card state controls | `POST /cards/:id/suspend`, `POST /cards/:id/unsuspend` | ✅ |
+| Bulk browser actions (MVP) | `POST /cards/bulk/move-deck`, `POST /cards/bulk/retag` | ✅ |
 
 Maintenance cadence: a roadmap-driven hardening cycle runs every 3 days and records outcomes in `docs/DEVELOPMENT_PLAN.md` + `docs/MAINTENANCE_RUNBOOK.md`.
 
@@ -191,6 +193,20 @@ curl -X POST http://127.0.0.1:8787/cards/<card-id>/unsuspend
 Unsuspend behavior is deterministic:
 - returns to `new` when `reps = 0`
 - returns to `review` when `reps > 0`
+
+### 7.8) Bulk browser actions (move deck + retag)
+
+```bash
+curl -X POST http://127.0.0.1:8787/cards/bulk/move-deck \
+  -H 'content-type: application/json' \
+  -d '{"cardIds":["<card-a>","<card-b>"],"deckId":"<target-deck-id>"}'
+
+curl -X POST http://127.0.0.1:8787/cards/bulk/retag \
+  -H 'content-type: application/json' \
+  -d '{"cardIds":["<card-a>","<card-b>"],"addTags":["priority"],"removeTags":["legacy"]}'
+```
+
+Use this to execute browser-level maintenance in one shot (triage, migration, and queue hygiene).
 
 ### 8) Finish and inspect review session
 

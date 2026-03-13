@@ -55,8 +55,35 @@ export function getCardById(id: string): CardRow | undefined {
   return getByIdStmt.get(id) as CardRow | undefined;
 }
 
+export function getCardsByIds(ids: string[]): CardRow[] {
+  if (ids.length === 0) {
+    return [];
+  }
+
+  const placeholders = ids.map(() => "?").join(",");
+  return db.prepare(`SELECT * FROM cards WHERE id IN (${placeholders})`).all(...ids) as CardRow[];
+}
+
 export function updateCardState(id: string, state: CardRow["state"], updatedAt: string): void {
   updateStateStmt.run({ id, state, updated_at: updatedAt });
+}
+
+export function bulkMoveCardsToDeck(cardIds: string[], deckId: string, updatedAt: string): number {
+  if (cardIds.length === 0) {
+    return 0;
+  }
+
+  const placeholders = cardIds.map(() => "?").join(",");
+  const result = db
+    .prepare(
+      `UPDATE cards
+       SET deck_id = ?,
+           updated_at = ?
+       WHERE id IN (${placeholders})`
+    )
+    .run(deckId, updatedAt, ...cardIds);
+
+  return result.changes;
 }
 
 export function listCards(query: CardQuery): { items: Array<CardRow & { front: string; back: string; tags: string }>; total: number } {

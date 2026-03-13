@@ -179,6 +179,18 @@ Next cycle priorities:
 - Add bulk browser actions for retag and deck move to advance parity browser workflows.
 - Publish `openapi.yaml` for current route set and align it with integration-tested behavior.
 
+### 2026-03-13 (Run F)
+
+Completed:
+- Added bulk browser action APIs (`POST /cards/bulk/move-deck`, `POST /cards/bulk/retag`) for deck migration and metadata cleanup workflows.
+- Added route-level integration tests for bulk actions and target-deck validation (`DECK_NOT_FOUND`).
+- Upgraded README presentation quality with a bulk-actions capability row and practical operator examples.
+
+Next cycle priorities:
+- Implement session-level undo-last-review with transaction-safe rollback semantics.
+- Publish and maintain `openapi.yaml` in lockstep with route integration tests.
+- Add browser saved-filter/query preset scaffolding to speed repeated triage flows.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

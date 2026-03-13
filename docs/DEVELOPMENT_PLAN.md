@@ -281,6 +281,22 @@ Next cycle focus:
 - Add bulk browser actions for retag and deck move on selected note/card sets.
 - Publish initial `openapi.yaml` for decks/notes/cards/review sessions and keep it synchronized with integration tests.
 
+### 2026-03-13 Maintenance update (Run F)
+
+Completed this cycle:
+- Implemented bulk browser action APIs for card sets: `POST /cards/bulk/move-deck` and `POST /cards/bulk/retag`.
+- Added route-level integration tests for bulk move/retag behavior, including `DECK_NOT_FOUND` guardrails.
+- Upgraded README presentation quality with an explicit bulk-actions capability row and operator-focused API examples.
+
+Priority shifts:
+- Browser parity now includes practical bulk maintenance workflows, reducing friction for deck migrations and tag cleanup.
+- M1 parity risk is now concentrated in undo-last-review and contract publication (OpenAPI) rather than CRUD/control surface breadth.
+
+Next cycle focus:
+- Implement session-level undo-last-review with review-log + FSRS rollback integrity checks.
+- Publish `openapi.yaml` and lock it against integration-covered routes.
+- Add card browser saved filters/query presets scaffold for faster repeated operations.
+
 ## 10. Strategic expansion tracks
 
 Track A - Anki-level completeness:
