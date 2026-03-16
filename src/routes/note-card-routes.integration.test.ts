@@ -13,9 +13,13 @@ async function withApp(run: (app: Awaited<ReturnType<typeof buildApp>>) => Promi
 }
 
 test.beforeEach(() => {
+  db.exec("DELETE FROM review_logs");
+  db.exec("DELETE FROM generated_cards");
+  db.exec("DELETE FROM review_sessions");
   db.exec("DELETE FROM cards");
   db.exec("DELETE FROM notes");
   db.exec("DELETE FROM decks");
+  db.exec("DELETE FROM knowledge_points");
 });
 
 test("notes + cards browser query primitives", async () => {
@@ -177,5 +181,69 @@ test("bulk card move-deck and retag actions", async () => {
     });
     assert.equal(missingDeck.statusCode, 404);
     assert.equal(missingDeck.json().error.code, "DECK_NOT_FOUND");
+  });
+});
+
+test("session-level undo last review restores progress and FSRS state", async () => {
+  await withApp(async (app) => {
+    const createKp = await app.inject({
+      method: "POST",
+      url: "/knowledge-points",
+      payload: {
+        front: "What is binary search?",
+        back: "Divide-and-conquer lookup in sorted arrays"
+      }
+    });
+    assert.equal(createKp.statusCode, 201);
+    const knowledgePointId = createKp.json().id as string;
+
+    const startSession = await app.inject({ method: "POST", url: "/review-sessions/start", payload: {} });
+    assert.equal(startSession.statusCode, 201);
+    const sessionId = startSession.json().sessionId as string;
+
+    const generated = await app.inject({
+      method: "POST",
+      url: "/quiz/generate",
+      payload: { knowledgePointId, count: 1 }
+    });
+    assert.equal(generated.statusCode, 201);
+    const cardId = generated.json().cardId as string;
+    const questionId = generated.json().questions[0].id as string;
+
+    const beforeState = await app.inject({ method: "GET", url: "/knowledge-points?limit=1" });
+    assert.equal(beforeState.statusCode, 200);
+    const before = beforeState.json().items[0] as { reps: number; state: number };
+
+    const submit = await app.inject({
+      method: "POST",
+      url: "/quiz/submit",
+      payload: {
+        cardId,
+        reviewSessionId: sessionId,
+        answers: [
+          {
+            questionId,
+            userAnswer: "Divide-and-conquer lookup in sorted arrays"
+          }
+        ]
+      }
+    });
+    assert.equal(submit.statusCode, 200);
+
+    const afterSubmitSession = await app.inject({ method: "GET", url: `/review-sessions/${sessionId}` });
+    assert.equal(afterSubmitSession.statusCode, 200);
+    assert.equal(afterSubmitSession.json().session.reviewedCount, 1);
+    assert.equal(afterSubmitSession.json().session.correctCount, 1);
+
+    const undo = await app.inject({ method: "POST", url: `/review-sessions/${sessionId}/undo-last-review` });
+    assert.equal(undo.statusCode, 200);
+    assert.equal(undo.json().session.reviewedCount, 0);
+    assert.equal(undo.json().session.correctCount, 0);
+
+    const afterUndoState = await app.inject({ method: "GET", url: "/knowledge-points?limit=1" });
+    assert.equal(afterUndoState.statusCode, 200);
+    const after = afterUndoState.json().items[0] as { reps: number; state: number };
+    assert.equal(after.reps, before.reps);
+    assert.equal(after.state, before.state);
   });
 });

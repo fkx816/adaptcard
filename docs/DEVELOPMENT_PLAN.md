@@ -297,6 +297,23 @@ Next cycle focus:
 - Publish `openapi.yaml` and lock it against integration-covered routes.
 - Add card browser saved filters/query presets scaffold for faster repeated operations.
 
+### 2026-03-16 Maintenance update (Run G)
+
+Completed this cycle:
+- Implemented session-level rollback API `POST /review-sessions/:id/undo-last-review` with transactional restoration of prior FSRS state.
+- Extended review-log detail payload to persist `knowledgePointBefore` snapshot and scoring stats, enabling deterministic undo semantics.
+- Added route-level integration coverage for undo flow (submit -> undo -> session counter rollback + knowledge-point state restore).
+- Improved README presentation quality with explicit session-safety capability status and practical undo usage guidance.
+
+Priority shifts:
+- Core M1 parity blocker (`Undo last review action`) is now shipped for active sessions.
+- Highest delivery risk has shifted to API contract publication and browser repeatability UX (saved filters/presets).
+
+Next cycle focus:
+- Publish `openapi.yaml` for all integration-tested endpoints and add CI drift checks.
+- Add card-browser saved filters/query presets scaffold (persist + list + apply).
+- Start note template expansion (`basic`/`cloze`/`reverse`) as the next parity acceleration item.
+
 ## 10. Strategic expansion tracks
 
 Track A - Anki-level completeness:

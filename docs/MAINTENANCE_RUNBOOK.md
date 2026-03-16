@@ -191,6 +191,19 @@ Next cycle priorities:
 - Publish and maintain `openapi.yaml` in lockstep with route integration tests.
 - Add browser saved-filter/query preset scaffolding to speed repeated triage flows.
 
+### 2026-03-16 (Run G)
+
+Completed:
+- Added session-level rollback API `POST /review-sessions/:id/undo-last-review` for active sessions.
+- Persisted pre-review knowledge-point snapshot and score stats in review logs to support deterministic undo.
+- Added integration test coverage for submit -> undo flow and verified session progress + knowledge-point restoration.
+- Refreshed README with explicit session-safety endpoint coverage and undo guidance.
+
+Next cycle priorities:
+- Publish `openapi.yaml` and gate route changes with a contract drift check.
+- Add saved filters/query presets for card browser workflows.
+- Expand note template support (basic/cloze/reverse) to advance P0 parity.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

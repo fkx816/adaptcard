@@ -36,7 +36,8 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 - ✅ Card browser query primitives (`search`, `deckId`, `state`, `sortBy`, `sortOrder`, `limit`, `offset`)
 - ✅ Card state controls (`POST /cards/:id/suspend`, `POST /cards/:id/unsuspend`)
 - ✅ Bulk browser actions baseline (`POST /cards/bulk/move-deck`, `POST /cards/bulk/retag`)
-- 🔄 Next: session-level undo-last-review and OpenAPI contract publication
+- ✅ Session safety control: undo last review within active review session (`POST /review-sessions/:id/undo-last-review`)
+- 🔄 Next: OpenAPI contract publication and browser saved filters/query presets
 
 ## API surface at a glance
 
@@ -46,6 +47,7 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 | Knowledge points | `POST /knowledge-points`, `GET /knowledge-points`, `GET /reviews/next` | ✅ |
 | Quiz generation/submission | `POST /quiz/generate`, `POST /quiz/submit` | ✅ |
 | Review session lifecycle | `POST /review-sessions/start`, `GET /review-sessions/:id`, `POST /review-sessions/:id/finish` | ✅ |
+| Session safety controls | `POST /review-sessions/:id/undo-last-review` | ✅ |
 | Deck hierarchy | `POST /decks`, `GET /decks`, `GET /decks/:id`, `PATCH /decks/:id`, `DELETE /decks/:id` | ✅ |
 | Notes baseline | `POST /notes`, `GET /notes` | ✅ |
 | Card browser query MVP | `GET /cards` | ✅ |
@@ -208,6 +210,17 @@ curl -X POST http://127.0.0.1:8787/cards/bulk/retag \
 
 Use this to execute browser-level maintenance in one shot (triage, migration, and queue hygiene).
 
+### 7.9) Undo the latest review action in an active session
+
+```bash
+curl -X POST http://127.0.0.1:8787/review-sessions/<session-id>/undo-last-review
+```
+
+Undo behavior:
+- restores the previous FSRS scheduling state for the affected knowledge point,
+- removes the latest session-linked review log,
+- decrements session reviewed/correct counters atomically.
+
 ### 8) Finish and inspect review session
 
 ```bash
@@ -239,6 +252,8 @@ Common error codes:
 - `INTERNAL_ERROR`
 - `REVIEW_SESSION_NOT_FOUND`
 - `REVIEW_SESSION_ALREADY_FINISHED`
+- `REVIEW_LOG_NOT_FOUND`
+- `UNDO_NOT_AVAILABLE`
 - `DECK_NOT_FOUND`
 - `PARENT_DECK_NOT_FOUND`
 - `INVALID_DECK_PARENT`

@@ -122,3 +122,10 @@ M4: Plugin API alpha and public extension docs
 - Delivered browser bulk action baseline with `POST /cards/bulk/move-deck` and `POST /cards/bulk/retag`.
 - Added integration coverage for deck migration + retag workflows and missing target deck protection.
 - M1 blocker narrows to undo-last-review + OpenAPI publication for contract reliability.
+
+## 2026-03-16 progress note (Run G)
+
+- Delivered session-level undo control via `POST /review-sessions/:id/undo-last-review` for active sessions.
+- Added transactional rollback semantics: restore pre-review FSRS fields, remove latest session review log, and decrement session counters atomically.
+- Added integration test coverage for end-to-end undo correctness after quiz submission.
+- M1 parity is now functionally complete on review controls baseline; next parity risk is contract maturity (`openapi.yaml`) and browser saved filters.

@@ -2,8 +2,16 @@ import { nanoid } from "nanoid";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { AppError } from "../errors.js";
-import { createReviewSession, finishReviewSession, getReviewSessionById } from "../models/review-session.js";
+import { db } from "../db/client.js";
+import { deleteReviewLogById, getLatestReviewLogForSession } from "../models/review-log.js";
+import {
+  createReviewSession,
+  decrementReviewSessionProgress,
+  finishReviewSession,
+  getReviewSessionById
+} from "../models/review-session.js";
 import { getSessionAccuracy } from "../services/review-session-metrics.js";
+import { updateKnowledgePointReview } from "../models/knowledge-point.js";
 
 const startSchema = z.object({
   startedAt: z.string().datetime().optional()
@@ -11,6 +19,25 @@ const startSchema = z.object({
 
 const finishSchema = z.object({
   endedAt: z.string().datetime().optional()
+});
+
+const reviewLogDetailSchema = z.object({
+  stats: z.object({
+    total: z.number().int().nonnegative(),
+    correct: z.number().int().nonnegative()
+  }),
+  knowledgePointBefore: z.object({
+    dueAt: z.string().datetime(),
+    stability: z.number(),
+    difficulty: z.number(),
+    elapsedDays: z.number().int().nonnegative(),
+    scheduledDays: z.number().int().nonnegative(),
+    reps: z.number().int().nonnegative(),
+    lapses: z.number().int().nonnegative(),
+    state: z.number().int().nonnegative(),
+    lastReview: z.string().datetime().nullable(),
+    updatedAt: z.string().datetime()
+  })
 });
 
 export async function registerReviewSessionRoutes(app: FastifyInstance): Promise<void> {
@@ -51,6 +78,85 @@ export async function registerReviewSessionRoutes(app: FastifyInstance): Promise
         endedAt: session.ended_at,
         reviewedCount: session.reviewed_count,
         correctCount: session.correct_count,
+        accuracy
+      }
+    };
+  });
+
+  app.post("/review-sessions/:id/undo-last-review", async (request) => {
+    const params = z.object({ id: z.string().min(1) }).parse(request.params);
+    const session = getReviewSessionById(params.id);
+    if (!session) {
+      throw new AppError(404, "REVIEW_SESSION_NOT_FOUND", "Review session not found");
+    }
+    if (session.ended_at) {
+      throw new AppError(409, "REVIEW_SESSION_ALREADY_FINISHED", "Review session already finished");
+    }
+
+    const log = getLatestReviewLogForSession(params.id);
+    if (!log) {
+      throw new AppError(404, "REVIEW_LOG_NOT_FOUND", "No review log found for this session");
+    }
+
+    let parsedDetail: unknown;
+    try {
+      parsedDetail = JSON.parse(log.detail);
+    } catch {
+      throw new AppError(409, "UNDO_NOT_AVAILABLE", "Undo is not available for this review log");
+    }
+
+    const parsed = reviewLogDetailSchema.safeParse(parsedDetail);
+    if (!parsed.success) {
+      throw new AppError(409, "UNDO_NOT_AVAILABLE", "Undo is not available for this review log");
+    }
+
+    const detail = parsed.data;
+    const nowIso = new Date().toISOString();
+
+    const tx = db.transaction(() => {
+      updateKnowledgePointReview({
+        id: log.knowledge_point_id,
+        due_at: detail.knowledgePointBefore.dueAt,
+        stability: detail.knowledgePointBefore.stability,
+        difficulty: detail.knowledgePointBefore.difficulty,
+        elapsed_days: detail.knowledgePointBefore.elapsedDays,
+        scheduled_days: detail.knowledgePointBefore.scheduledDays,
+        reps: detail.knowledgePointBefore.reps,
+        lapses: detail.knowledgePointBefore.lapses,
+        state: detail.knowledgePointBefore.state,
+        last_review: detail.knowledgePointBefore.lastReview,
+        updated_at: nowIso
+      });
+
+      deleteReviewLogById(log.id);
+
+      decrementReviewSessionProgress({
+        id: params.id,
+        reviewed_count: 1,
+        correct_count: detail.stats.correct,
+        updated_at: nowIso
+      });
+    });
+
+    tx();
+
+    const updated = getReviewSessionById(params.id);
+    const accuracy = getSessionAccuracy(updated?.reviewed_count ?? 0, updated?.correct_count ?? 0);
+
+    return {
+      undoneReview: {
+        reviewLogId: log.id,
+        cardId: log.card_id,
+        reviewedAt: log.reviewed_at,
+        rating: log.rating,
+        correctRate: log.correct_rate
+      },
+      session: {
+        id: params.id,
+        startedAt: updated?.started_at ?? session.started_at,
+        endedAt: updated?.ended_at ?? session.ended_at,
+        reviewedCount: updated?.reviewed_count ?? session.reviewed_count,
+        correctCount: updated?.correct_count ?? session.correct_count,
         accuracy
       }
     };

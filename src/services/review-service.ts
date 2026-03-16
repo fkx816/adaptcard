@@ -34,6 +34,7 @@ export function scoreAnswers(cardId: string, answers: SubmitAnswer[], reviewSess
 
   const now = new Date();
   const scheduled = scheduleAfterReview(kp, rating, now);
+  const nowIso = now.toISOString();
 
   updateKnowledgePointReview({
     id: kp.id,
@@ -45,8 +46,8 @@ export function scoreAnswers(cardId: string, answers: SubmitAnswer[], reviewSess
     reps: scheduled.reps,
     lapses: scheduled.lapses,
     state: scheduled.state,
-    last_review: now.toISOString(),
-    updated_at: now.toISOString()
+    last_review: nowIso,
+    updated_at: nowIso
   });
 
   createReviewLog({
@@ -54,10 +55,25 @@ export function scoreAnswers(cardId: string, answers: SubmitAnswer[], reviewSess
     knowledge_point_id: kp.id,
     card_id: card.id,
     session_id: reviewSessionId ?? null,
-    reviewed_at: now.toISOString(),
+    reviewed_at: nowIso,
     rating,
     correct_rate: correctRate,
-    detail: JSON.stringify({ answers })
+    detail: JSON.stringify({
+      answers,
+      stats: { total, correct },
+      knowledgePointBefore: {
+        dueAt: kp.due_at,
+        stability: kp.stability,
+        difficulty: kp.difficulty,
+        elapsedDays: kp.elapsed_days,
+        scheduledDays: kp.scheduled_days,
+        reps: kp.reps,
+        lapses: kp.lapses,
+        state: kp.state,
+        lastReview: kp.last_review,
+        updatedAt: kp.updated_at
+      }
+    })
   });
 
   if (reviewSessionId) {
@@ -65,7 +81,7 @@ export function scoreAnswers(cardId: string, answers: SubmitAnswer[], reviewSess
       id: reviewSessionId,
       reviewed_count: 1,
       correct_count: correct,
-      updated_at: now.toISOString()
+      updated_at: nowIso
     });
   }
 

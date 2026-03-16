@@ -33,6 +33,14 @@ const finishStmt = db.prepare(`
   WHERE id = @id AND ended_at IS NULL
 `);
 
+const decrementProgressStmt = db.prepare(`
+  UPDATE review_sessions
+  SET reviewed_count = MAX(0, reviewed_count - @reviewed_count),
+      correct_count = MAX(0, correct_count - @correct_count),
+      updated_at = @updated_at
+  WHERE id = @id AND ended_at IS NULL
+`);
+
 export function createReviewSession(row: ReviewSessionRow): void {
   insertStmt.run(row);
 }
@@ -53,5 +61,15 @@ export function bumpReviewSessionProgress(input: {
 
 export function finishReviewSession(input: { id: string; ended_at: string; updated_at: string }): number {
   const result = finishStmt.run(input);
+  return result.changes;
+}
+
+export function decrementReviewSessionProgress(input: {
+  id: string;
+  reviewed_count: number;
+  correct_count: number;
+  updated_at: string;
+}): number {
+  const result = decrementProgressStmt.run(input);
   return result.changes;
 }
