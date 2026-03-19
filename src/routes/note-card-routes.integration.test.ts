@@ -16,6 +16,7 @@ test.beforeEach(() => {
   db.exec("DELETE FROM review_logs");
   db.exec("DELETE FROM generated_cards");
   db.exec("DELETE FROM review_sessions");
+  db.exec("DELETE FROM card_browser_filters");
   db.exec("DELETE FROM cards");
   db.exec("DELETE FROM notes");
   db.exec("DELETE FROM decks");
@@ -181,6 +182,73 @@ test("bulk card move-deck and retag actions", async () => {
     });
     assert.equal(missingDeck.statusCode, 404);
     assert.equal(missingDeck.json().error.code, "DECK_NOT_FOUND");
+  });
+});
+
+test("saved card browser filters can be created, listed, and applied", async () => {
+  await withApp(async (app) => {
+    const deck = await app.inject({ method: "POST", url: "/decks", payload: { name: "Data Structures" } });
+    assert.equal(deck.statusCode, 201);
+    const deckId = deck.json().id as string;
+
+    const createA = await app.inject({
+      method: "POST",
+      url: "/notes",
+      payload: {
+        deckId,
+        front: "What is a heap?",
+        back: "A tree-based priority queue",
+        tags: ["algorithms", "priority-queue"]
+      }
+    });
+
+    const createB = await app.inject({
+      method: "POST",
+      url: "/notes",
+      payload: {
+        deckId,
+        front: "What is Dijkstra's algorithm?",
+        back: "Shortest path algorithm for weighted graphs",
+        tags: ["algorithms", "graphs"]
+      }
+    });
+
+    assert.equal(createA.statusCode, 201);
+    assert.equal(createB.statusCode, 201);
+
+    const saveFilter = await app.inject({
+      method: "POST",
+      url: "/cards/filters",
+      payload: {
+        name: "Graph search review",
+        query: {
+          search: "graph",
+          deckId,
+          state: "new",
+          sortBy: "updatedAt",
+          sortOrder: "desc",
+          limit: 10,
+          offset: 0
+        }
+      }
+    });
+
+    assert.equal(saveFilter.statusCode, 200);
+    const filterId = saveFilter.json().id as string;
+
+    const listFilters = await app.inject({ method: "GET", url: "/cards/filters" });
+    assert.equal(listFilters.statusCode, 200);
+    assert.equal(listFilters.json().items.length, 1);
+    assert.equal(listFilters.json().items[0].name, "Graph search review");
+
+    const applied = await app.inject({ method: "GET", url: `/cards/filters/${filterId}/apply` });
+    assert.equal(applied.statusCode, 200);
+    assert.equal(applied.json().items.length, 1);
+    assert.equal(applied.json().items[0].front, "What is Dijkstra's algorithm?");
+
+    const missing = await app.inject({ method: "GET", url: "/cards/filters/missing/apply" });
+    assert.equal(missing.statusCode, 404);
+    assert.equal(missing.json().error.code, "CARD_FILTER_NOT_FOUND");
   });
 });
 

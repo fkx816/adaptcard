@@ -1,0 +1,204 @@
+openapi: 3.1.0
+info:
+  title: adaptcard API
+  version: 0.1.0
+  description: |
+    OpenAPI draft for integration-tested adaptcard endpoints.
+servers:
+  - url: http://127.0.0.1:8787
+paths:
+  /health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Service health
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  service:
+                    type: string
+  /cards:
+    get:
+      summary: List cards with browser-style query options
+      parameters:
+        - in: query
+          name: search
+          schema: { type: string }
+        - in: query
+          name: deckId
+          schema: { type: string }
+        - in: query
+          name: state
+          schema:
+            type: string
+            enum: [new, learning, review, relearning, suspended]
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: [dueAt, reps, lapses, updatedAt]
+        - in: query
+          name: sortOrder
+          schema:
+            type: string
+            enum: [asc, desc]
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+      responses:
+        '200':
+          description: Card page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardListResponse'
+  /cards/filters:
+    get:
+      summary: List saved card browser filters
+      responses:
+        '200':
+          description: Saved filters
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/SavedCardFilter'
+    post:
+      summary: Save a card browser filter preset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, query]
+              properties:
+                name:
+                  type: string
+                  minLength: 1
+                  maxLength: 80
+                query:
+                  $ref: '#/components/schemas/CardFilterQuery'
+      responses:
+        '200':
+          description: Saved filter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavedCardFilter'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+  /cards/filters/{id}/apply:
+    get:
+      summary: Apply saved filter and return result page
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Filtered cards
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/CardListResponse'
+                  - type: object
+                    properties:
+                      filter:
+                        $ref: '#/components/schemas/SavedCardFilter'
+        '404':
+          $ref: '#/components/responses/CardFilterNotFound'
+components:
+  responses:
+    ValidationError:
+      description: Request validation failed
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+    CardFilterNotFound:
+      description: Saved filter does not exist
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorEnvelope'
+  schemas:
+    ErrorEnvelope:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
+            details: {}
+    CardItem:
+      type: object
+      properties:
+        id: { type: string }
+        noteId: { type: string }
+        deckId: { type: string }
+        cardType: { type: string }
+        state: { type: string }
+        dueAt: { type: string, format: date-time }
+        reps: { type: integer }
+        lapses: { type: integer }
+        front: { type: string }
+        back: { type: string }
+        tags:
+          type: array
+          items: { type: string }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CardFilterQuery:
+      type: object
+      properties:
+        search: { type: string }
+        deckId: { type: string }
+        state:
+          type: string
+          enum: [new, learning, review, relearning, suspended]
+        sortBy:
+          type: string
+          enum: [dueAt, reps, lapses, updatedAt]
+        sortOrder:
+          type: string
+          enum: [asc, desc]
+        limit: { type: integer, minimum: 1, maximum: 100 }
+        offset: { type: integer, minimum: 0 }
+    SavedCardFilter:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        query:
+          $ref: '#/components/schemas/CardFilterQuery'
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    CardListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/CardItem'
+        page:
+          type: object
+          properties:
+            limit: { type: integer }
+            offset: { type: integer }
+            total: { type: integer }

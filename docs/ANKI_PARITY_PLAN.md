@@ -129,3 +129,10 @@ M4: Plugin API alpha and public extension docs
 - Added transactional rollback semantics: restore pre-review FSRS fields, remove latest session review log, and decrement session counters atomically.
 - Added integration test coverage for end-to-end undo correctness after quiz submission.
 - M1 parity is now functionally complete on review controls baseline; next parity risk is contract maturity (`openapi.yaml`) and browser saved filters.
+
+## 2026-03-19 progress note (Run H)
+
+- Delivered saved filter/query preset scaffold for card browser workflows (`POST /cards/filters`, `GET /cards/filters`, `GET /cards/filters/:id/apply`).
+- Added persistence + integration tests for filter create/list/apply, covering missing-filter guardrail (`CARD_FILTER_NOT_FOUND`).
+- Published initial `docs/openapi.yaml` draft for card browser contract visibility.
+- M1 now includes repeatable browser triage scaffolding; next parity acceleration is note template expansion (`cloze`/`reverse`) and deeper contract coverage.

@@ -37,7 +37,8 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 - ✅ Card state controls (`POST /cards/:id/suspend`, `POST /cards/:id/unsuspend`)
 - ✅ Bulk browser actions baseline (`POST /cards/bulk/move-deck`, `POST /cards/bulk/retag`)
 - ✅ Session safety control: undo last review within active review session (`POST /review-sessions/:id/undo-last-review`)
-- 🔄 Next: OpenAPI contract publication and browser saved filters/query presets
+- ✅ Card browser saved filters/query presets scaffold (`POST /cards/filters`, `GET /cards/filters`, `GET /cards/filters/:id/apply`)
+- ✅ OpenAPI draft published at `docs/openapi.yaml`
 
 ## API surface at a glance
 
@@ -53,6 +54,7 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 | Card browser query MVP | `GET /cards` | ✅ |
 | Card state controls | `POST /cards/:id/suspend`, `POST /cards/:id/unsuspend` | ✅ |
 | Bulk browser actions (MVP) | `POST /cards/bulk/move-deck`, `POST /cards/bulk/retag` | ✅ |
+| Saved browser filters (scaffold) | `POST /cards/filters`, `GET /cards/filters`, `GET /cards/filters/:id/apply` | ✅ |
 
 Maintenance cadence: a roadmap-driven hardening cycle runs every 3 days and records outcomes in `docs/DEVELOPMENT_PLAN.md` + `docs/MAINTENANCE_RUNBOOK.md`.
 
@@ -210,6 +212,29 @@ curl -X POST http://127.0.0.1:8787/cards/bulk/retag \
 
 Use this to execute browser-level maintenance in one shot (triage, migration, and queue hygiene).
 
+### 7.85) Save and apply browser filters/query presets
+
+```bash
+curl -X POST http://127.0.0.1:8787/cards/filters \
+  -H 'content-type: application/json' \
+  -d '{
+    "name":"Graph triage",
+    "query":{
+      "search":"graph",
+      "state":"new",
+      "sortBy":"updatedAt",
+      "sortOrder":"desc",
+      "limit":20,
+      "offset":0
+    }
+  }'
+
+curl http://127.0.0.1:8787/cards/filters
+curl http://127.0.0.1:8787/cards/filters/<filter-id>/apply
+```
+
+Use saved filters to make repeated browser triage workflows one-click and consistent across sessions.
+
 ### 7.9) Undo the latest review action in an active session
 
 ```bash
@@ -258,6 +283,7 @@ Common error codes:
 - `PARENT_DECK_NOT_FOUND`
 - `INVALID_DECK_PARENT`
 - `DECK_HAS_CHILDREN`
+- `CARD_FILTER_NOT_FOUND`
 
 ## Quality checks
 
@@ -351,6 +377,7 @@ curl -X POST http://127.0.0.1:8787/quiz/generate \
 - Anki parity plan: `docs/ANKI_PARITY_PLAN.md`
 - Frontend product spec: `docs/FRONTEND_PRODUCT_SPEC.md`
 - Deployment blueprint: `docs/DEPLOYMENT_BLUEPRINT.md`
+- OpenAPI draft: `docs/openapi.yaml`
 
 ## Open-source docs
 

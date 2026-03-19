@@ -314,6 +314,23 @@ Next cycle focus:
 - Add card-browser saved filters/query presets scaffold (persist + list + apply).
 - Start note template expansion (`basic`/`cloze`/`reverse`) as the next parity acceleration item.
 
+### 2026-03-19 Maintenance update (Run H)
+
+Completed this cycle:
+- Implemented card-browser saved filter scaffold APIs: `POST /cards/filters`, `GET /cards/filters`, `GET /cards/filters/:id/apply`.
+- Added persistence for saved presets (`card_browser_filters`) plus route-level integration coverage for create/list/apply and not-found behavior.
+- Published initial OpenAPI draft at `docs/openapi.yaml` to document card browser + saved-filter contract.
+- Upgraded README presentation with capability matrix updates and operator-facing saved-filter examples.
+
+Priority shifts:
+- Browser repeatability UX moved from planned to shipped scaffold, reducing daily triage friction.
+- Contract maturity has started (OpenAPI draft published), but coverage depth and drift automation remain the key quality risks.
+
+Next cycle focus:
+- Expand note template parity from `basic` to `cloze` and `reverse` with persistence and generation hooks.
+- Extend OpenAPI coverage beyond card browser routes to all integration-tested endpoints.
+- Add contract drift checks in CI to block undocumented route changes.
+
 ## 10. Strategic expansion tracks
 
 Track A - Anki-level completeness:

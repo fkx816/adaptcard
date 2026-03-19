@@ -204,6 +204,19 @@ Next cycle priorities:
 - Add saved filters/query presets for card browser workflows.
 - Expand note template support (basic/cloze/reverse) to advance P0 parity.
 
+### 2026-03-19 (Run H)
+
+Completed:
+- Added saved card-browser filters scaffold APIs (`POST /cards/filters`, `GET /cards/filters`, `GET /cards/filters/:id/apply`).
+- Added `card_browser_filters` persistence table and route-level integration coverage for create/list/apply + missing-filter guardrail.
+- Published initial OpenAPI contract draft at `docs/openapi.yaml`.
+- Upgraded README quality with saved-filter examples and refreshed capability matrix.
+
+Next cycle priorities:
+- Expand note template support (`cloze` and `reverse`) with note/card generation paths.
+- Extend OpenAPI contract to all integration-tested endpoints, not just card browser surfaces.
+- Add CI contract drift checks so route changes require OpenAPI synchronization.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

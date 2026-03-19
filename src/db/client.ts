@@ -101,6 +101,14 @@ export function migrate(): void {
       FOREIGN KEY (note_id) REFERENCES notes(id),
       FOREIGN KEY (deck_id) REFERENCES decks(id)
     );
+
+    CREATE TABLE IF NOT EXISTS card_browser_filters (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      query_json TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      updated_at TEXT NOT NULL
+    );
   `);
 
   const reviewLogColumns = db
@@ -116,6 +124,7 @@ export function migrate(): void {
     CREATE INDEX IF NOT EXISTS idx_cards_deck_id ON cards(deck_id);
     CREATE INDEX IF NOT EXISTS idx_cards_state ON cards(state);
     CREATE INDEX IF NOT EXISTS idx_cards_due_at ON cards(due_at);
+    CREATE INDEX IF NOT EXISTS idx_card_browser_filters_updated_at ON card_browser_filters(updated_at);
   `);
 }
 
