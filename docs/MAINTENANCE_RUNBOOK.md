@@ -217,6 +217,20 @@ Next cycle priorities:
 - Extend OpenAPI contract to all integration-tested endpoints, not just card browser surfaces.
 - Add CI contract drift checks so route changes require OpenAPI synchronization.
 
+### 2026-03-22 (Run I)
+
+Completed:
+- Implemented template-aware note creation: reverse notes now generate mirrored cards, and cloze notes generate indexed cards from cloze markers.
+- Added integration tests for reverse/cloze generation and invalid-cloze validation behavior.
+- Expanded `docs/openapi.yaml` to include the broader integration-tested API route surface.
+- Added `npm run check:openapi` contract drift check.
+- Improved README presentation with template matrix + cloze example.
+
+Next cycle priorities:
+- Add API-level rendered prompt/answer fields for reverse/cloze browser display.
+- Increase OpenAPI schema strictness (typed response bodies + example payloads + error mapping).
+- Implement filtered/custom study session baseline to advance parity beyond baseline browser controls.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

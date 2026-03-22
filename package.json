@@ -9,7 +9,8 @@
     "build": "node ./node_modules/typescript/bin/tsc -p tsconfig.json",
     "start": "node dist/server.js",
     "lint": "node ./node_modules/typescript/bin/tsc --noEmit",
-    "test": "sh -c 'set -eu; for f in src/**/*.test.ts; do node ./node_modules/tsx/dist/cli.mjs --test \"$f\"; done'"
+    "test": "sh -c 'set -eu; for f in src/**/*.test.ts; do node ./node_modules/tsx/dist/cli.mjs --test \"$f\"; done'",
+    "check:openapi": "node scripts/check-openapi.mjs"
   },
   "keywords": [
     "learning-engine",

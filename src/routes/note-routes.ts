@@ -14,6 +14,43 @@ const createNoteSchema = z.object({
   cardType: z.enum(["basic", "reverse", "cloze"]).default("basic")
 });
 
+function getClozeCardTypes(front: string, back: string): string[] {
+  const indices = new Set<number>();
+  const matcher = /\{\{c(\d+)::.+?\}\}/g;
+
+  for (const source of [front, back]) {
+    for (const match of source.matchAll(matcher)) {
+      indices.add(Number(match[1]));
+    }
+  }
+
+  return [...indices]
+    .filter((value) => Number.isFinite(value) && value > 0)
+    .sort((a, b) => a - b)
+    .map((index) => `cloze:${index}`);
+}
+
+function buildTemplateCardTypes(cardType: "basic" | "reverse" | "cloze", front: string, back: string): string[] {
+  if (cardType === "basic") {
+    return ["basic"];
+  }
+
+  if (cardType === "reverse") {
+    return ["basic", "reverse"];
+  }
+
+  const clozeCardTypes = getClozeCardTypes(front, back);
+  if (clozeCardTypes.length === 0) {
+    throw new AppError(
+      400,
+      "VALIDATION_ERROR",
+      "Cloze notes require at least one deletion marker like {{c1::text}}"
+    );
+  }
+
+  return clozeCardTypes;
+}
+
 const listNotesQuerySchema = z.object({
   deckId: z.string().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(100).default(20),
@@ -41,21 +78,27 @@ export async function registerNoteRoutes(app: FastifyInstance): Promise<void> {
       updated_at: nowIso
     });
 
-    const cardId = nanoid(12);
-    createCard({
-      id: cardId,
-      note_id: noteId,
-      deck_id: body.deckId,
-      card_type: body.cardType,
-      state: "new",
-      due_at: nowIso,
-      reps: 0,
-      lapses: 0,
-      created_at: nowIso,
-      updated_at: nowIso
-    });
+    const cardTypes = buildTemplateCardTypes(body.cardType, body.front, body.back);
+    const cardIds: string[] = [];
 
-    reply.code(201).send({ id: noteId, cardId });
+    for (const cardType of cardTypes) {
+      const cardId = nanoid(12);
+      cardIds.push(cardId);
+      createCard({
+        id: cardId,
+        note_id: noteId,
+        deck_id: body.deckId,
+        card_type: cardType,
+        state: "new",
+        due_at: nowIso,
+        reps: 0,
+        lapses: 0,
+        created_at: nowIso,
+        updated_at: nowIso
+      });
+    }
+
+    reply.code(201).send({ id: noteId, cardId: cardIds[0], cardIds, cardCount: cardIds.length });
   });
 
   app.get("/notes", async (request) => {

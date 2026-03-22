@@ -331,6 +331,24 @@ Next cycle focus:
 - Extend OpenAPI coverage beyond card browser routes to all integration-tested endpoints.
 - Add contract drift checks in CI to block undocumented route changes.
 
+### 2026-03-22 Maintenance update (Run I)
+
+Completed this cycle:
+- Implemented template-aware note creation: `reverse` now creates mirrored `basic` + `reverse` cards, and `cloze` expands into indexed cards (`cloze:1..N`) from `{{cN::...}}` markers.
+- Added integration tests covering reverse/cloze generation and cloze validation failure behavior.
+- Expanded `docs/openapi.yaml` from card-browser-only draft to the broader integration-tested route surface (knowledge points, quiz, sessions, decks, notes, cards).
+- Added `npm run check:openapi` drift guard script to enforce required documented paths.
+- Upgraded README presentation with a template behavior matrix and realistic cloze workflow example.
+
+Priority shifts:
+- P0 note template parity moved from scaffold to shipped baseline (`basic`/`reverse`/`cloze`).
+- Contract visibility risk reduced by broader OpenAPI coverage; next risk is improving schema depth/strictness beyond path-level checks.
+
+Next cycle focus:
+- Add card rendering helpers for reverse/cloze preview payloads so browser clients can directly render prompt/answer sides without local template logic.
+- Deepen OpenAPI schemas and examples for response bodies + error codes, then tighten drift checks to method-level coverage.
+- Start filtered/custom study session baseline (`state + due window + deck scope`) to advance P1 parity.
+
 ## 10. Strategic expansion tracks
 
 Track A - Anki-level completeness:

@@ -252,6 +252,65 @@ test("saved card browser filters can be created, listed, and applied", async () 
   });
 });
 
+test("note templates: reverse creates mirrored cards and cloze expands deletions", async () => {
+  await withApp(async (app) => {
+    const deck = await app.inject({ method: "POST", url: "/decks", payload: { name: "Language" } });
+    assert.equal(deck.statusCode, 201);
+    const deckId = deck.json().id as string;
+
+    const reverse = await app.inject({
+      method: "POST",
+      url: "/notes",
+      payload: {
+        deckId,
+        front: "bonjour",
+        back: "hello",
+        tags: ["fr"],
+        cardType: "reverse"
+      }
+    });
+    assert.equal(reverse.statusCode, 201);
+    assert.equal(reverse.json().cardCount, 2);
+
+    const reverseCards = await app.inject({ method: "GET", url: "/cards?search=bonjour&sortBy=updatedAt&sortOrder=desc" });
+    assert.equal(reverseCards.statusCode, 200);
+    const reverseTypes = (reverseCards.json().items as Array<{ cardType: string }>).map((card) => card.cardType).sort();
+    assert.deepEqual(reverseTypes, ["basic", "reverse"]);
+
+    const cloze = await app.inject({
+      method: "POST",
+      url: "/notes",
+      payload: {
+        deckId,
+        front: "TCP uses {{c1::three-way handshake}} before data exchange",
+        back: "It starts with {{c1::SYN}}, then {{c2::SYN-ACK}}, then {{c3::ACK}}",
+        tags: ["networking"],
+        cardType: "cloze"
+      }
+    });
+    assert.equal(cloze.statusCode, 201);
+    assert.equal(cloze.json().cardCount, 3);
+
+    const clozeCards = await app.inject({ method: "GET", url: "/cards?search=three-way&sortBy=updatedAt&sortOrder=desc" });
+    assert.equal(clozeCards.statusCode, 200);
+    const clozeTypes = (clozeCards.json().items as Array<{ cardType: string }>).map((card) => card.cardType).sort();
+    assert.deepEqual(clozeTypes, ["cloze:1", "cloze:2", "cloze:3"]);
+
+    const invalidCloze = await app.inject({
+      method: "POST",
+      url: "/notes",
+      payload: {
+        deckId,
+        front: "No cloze markup here",
+        back: "Still plain text",
+        cardType: "cloze"
+      }
+    });
+    assert.equal(invalidCloze.statusCode, 400);
+    assert.equal(invalidCloze.json().error.code, "VALIDATION_ERROR");
+  });
+});
+
 test("session-level undo last review restores progress and FSRS state", async () => {
   await withApp(async (app) => {
     const createKp = await app.inject({

@@ -136,3 +136,10 @@ M4: Plugin API alpha and public extension docs
 - Added persistence + integration tests for filter create/list/apply, covering missing-filter guardrail (`CARD_FILTER_NOT_FOUND`).
 - Published initial `docs/openapi.yaml` draft for card browser contract visibility.
 - M1 now includes repeatable browser triage scaffolding; next parity acceleration is note template expansion (`cloze`/`reverse`) and deeper contract coverage.
+
+## 2026-03-22 progress note (Run I)
+
+- Delivered note template parity baseline in code paths: `reverse` now creates mirrored card pairs and `cloze` expands indexed cards from `{{cN::...}}` markers.
+- Added integration tests for reverse/cloze card expansion plus validation guardrail when cloze markup is missing.
+- Expanded OpenAPI route coverage to the full integration-tested API surface and added `check:openapi` drift checks.
+- P0 template coverage is now functionally present (`basic`, `reverse`, `cloze`); next parity gap shifts to browser rendering fidelity and filtered/custom study controls.

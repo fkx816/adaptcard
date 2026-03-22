@@ -1,9 +1,9 @@
 openapi: 3.1.0
 info:
   title: adaptcard API
-  version: 0.1.0
+  version: 0.2.0
   description: |
-    OpenAPI draft for integration-tested adaptcard endpoints.
+    Expanded OpenAPI contract covering the current integration-tested adaptcard API surface.
 servers:
   - url: http://127.0.0.1:8787
 paths:
@@ -18,10 +18,310 @@ paths:
               schema:
                 type: object
                 properties:
-                  ok:
-                    type: boolean
-                  service:
-                    type: string
+                  ok: { type: boolean }
+                  service: { type: string }
+
+  /knowledge-points:
+    post:
+      summary: Create a knowledge point
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [front, back]
+              properties:
+                front: { type: string }
+                back: { type: string }
+                context: { type: string }
+                tags:
+                  type: array
+                  items: { type: string }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+    get:
+      summary: List knowledge points
+      parameters:
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+      responses:
+        '200':
+          description: List response
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /reviews/next:
+    get:
+      summary: Get next due knowledge point
+      responses:
+        '200':
+          description: Next due
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /quiz/generate:
+    post:
+      summary: Generate quiz questions for a knowledge point
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [knowledgePointId]
+              properties:
+                knowledgePointId: { type: string }
+                count: { type: integer, minimum: 1 }
+                pin: { type: boolean }
+      responses:
+        '201':
+          description: Quiz generated
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /quiz/submit:
+    post:
+      summary: Submit quiz answers and update review state
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cardId, answers]
+              properties:
+                cardId: { type: string }
+                reviewSessionId: { type: string }
+                answers:
+                  type: array
+                  items:
+                    type: object
+                    required: [questionId, userAnswer]
+                    properties:
+                      questionId: { type: string }
+                      userAnswer: { type: string }
+      responses:
+        '200':
+          description: Review result
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /review-sessions/start:
+    post:
+      summary: Start a review session
+      responses:
+        '201':
+          description: Session started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId: { type: string }
+
+  /review-sessions/{id}:
+    get:
+      summary: Get review session detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Session detail
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /review-sessions/{id}/finish:
+    post:
+      summary: Finish review session
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Session summary
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /review-sessions/{id}/undo-last-review:
+    post:
+      summary: Undo latest review action in an active session
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Undo result
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /decks:
+    post:
+      summary: Create deck
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name]
+              properties:
+                name: { type: string }
+                parentId: { type: string }
+      responses:
+        '201':
+          description: Deck created
+          content:
+            application/json:
+              schema:
+                type: object
+    get:
+      summary: List decks
+      responses:
+        '200':
+          description: Deck list
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /decks/{id}:
+    get:
+      summary: Get deck detail
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Deck detail
+          content:
+            application/json:
+              schema:
+                type: object
+    patch:
+      summary: Update deck
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Deck updated
+          content:
+            application/json:
+              schema:
+                type: object
+    delete:
+      summary: Delete deck (leaf only)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Deck deleted
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /notes:
+    post:
+      summary: Create note with template-based card generation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [deckId, front, back]
+              properties:
+                deckId: { type: string }
+                front: { type: string }
+                back: { type: string }
+                tags:
+                  type: array
+                  items: { type: string }
+                cardType:
+                  type: string
+                  enum: [basic, reverse, cloze]
+                  default: basic
+      responses:
+        '201':
+          description: Note created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id: { type: string }
+                  cardId: { type: string }
+                  cardIds:
+                    type: array
+                    items: { type: string }
+                  cardCount: { type: integer }
+    get:
+      summary: List notes
+      parameters:
+        - in: query
+          name: deckId
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+      responses:
+        '200':
+          description: Note list
+          content:
+            application/json:
+              schema:
+                type: object
+
   /cards:
     get:
       summary: List cards with browser-style query options
@@ -60,6 +360,92 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CardListResponse'
+
+  /cards/{id}/suspend:
+    post:
+      summary: Suspend card
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Updated card state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardStateResponse'
+
+  /cards/{id}/unsuspend:
+    post:
+      summary: Unsuspend card
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Updated card state
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CardStateResponse'
+
+  /cards/bulk/move-deck:
+    post:
+      summary: Move cards to another deck in bulk
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cardIds, deckId]
+              properties:
+                cardIds:
+                  type: array
+                  minItems: 1
+                  items: { type: string }
+                deckId: { type: string }
+      responses:
+        '200':
+          description: Move result
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /cards/bulk/retag:
+    post:
+      summary: Bulk retag cards by note association
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [cardIds]
+              properties:
+                cardIds:
+                  type: array
+                  minItems: 1
+                  items: { type: string }
+                addTags:
+                  type: array
+                  items: { type: string }
+                removeTags:
+                  type: array
+                  items: { type: string }
+      responses:
+        '200':
+          description: Retag result
+          content:
+            application/json:
+              schema:
+                type: object
+
   /cards/filters:
     get:
       summary: List saved card browser filters
@@ -98,8 +484,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SavedCardFilter'
-        '400':
-          $ref: '#/components/responses/ValidationError'
+
   /cards/filters/{id}/apply:
     get:
       summary: Apply saved filter and return result page
@@ -120,32 +505,22 @@ paths:
                     properties:
                       filter:
                         $ref: '#/components/schemas/SavedCardFilter'
-        '404':
-          $ref: '#/components/responses/CardFilterNotFound'
+
 components:
-  responses:
-    ValidationError:
-      description: Request validation failed
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
-    CardFilterNotFound:
-      description: Saved filter does not exist
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ErrorEnvelope'
   schemas:
-    ErrorEnvelope:
+    CardStateResponse:
       type: object
       properties:
-        error:
-          type: object
-          properties:
-            code: { type: string }
-            message: { type: string }
-            details: {}
+        id: { type: string }
+        noteId: { type: string }
+        deckId: { type: string }
+        cardType: { type: string }
+        state: { type: string }
+        dueAt: { type: string, format: date-time }
+        reps: { type: integer }
+        lapses: { type: integer }
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
     CardItem:
       type: object
       properties:

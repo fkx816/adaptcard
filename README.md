@@ -32,7 +32,7 @@ adaptcard is the middle layer: a composable engine that gives you adaptive sched
 - ✅ Review session lifecycle (`start` / `progress` / `finish`)
 - ✅ Deck hierarchy baseline (`create` / `list` / `detail` / `update` / `delete leaf`)
 - ✅ Deck hierarchy integration coverage (route-level flow + guardrails)
-- ✅ Notes/cards baseline split with deck linkage and default card creation
+- ✅ Notes/cards baseline split with deck linkage and template-based card generation
 - ✅ Card browser query primitives (`search`, `deckId`, `state`, `sortBy`, `sortOrder`, `limit`, `offset`)
 - ✅ Card state controls (`POST /cards/:id/suspend`, `POST /cards/:id/unsuspend`)
 - ✅ Bulk browser actions baseline (`POST /cards/bulk/move-deck`, `POST /cards/bulk/retag`)
@@ -173,6 +173,14 @@ curl -X DELETE http://127.0.0.1:8787/decks/<leaf-deck-id>
 
 ### 7) Create notes and inspect cards (browser MVP)
 
+Template behavior quick reference:
+
+| `cardType` | Generated cards | Notes |
+| --- | --- | --- |
+| `basic` | 1 (`basic`) | Standard front -> back recall |
+| `reverse` | 2 (`basic`, `reverse`) | Creates mirrored prompts for both directions |
+| `cloze` | N (`cloze:1..N`) | Requires `{{cN::...}}` markers in `front` or `back` |
+
 ```bash
 curl -X POST http://127.0.0.1:8787/notes \
   -H 'content-type: application/json' \
@@ -185,6 +193,19 @@ curl -X POST http://127.0.0.1:8787/notes \
   }'
 
 curl 'http://127.0.0.1:8787/cards?search=shortest&state=new&sortBy=dueAt&sortOrder=asc&limit=20&offset=0'
+```
+
+Cloze template example (creates one card per cloze index):
+
+```bash
+curl -X POST http://127.0.0.1:8787/notes \
+  -H 'content-type: application/json' \
+  -d '{
+    "deckId":"<deck-id>",
+    "front":"TCP starts with {{c1::SYN}}",
+    "back":"Then {{c2::SYN-ACK}}, then {{c3::ACK}}",
+    "cardType":"cloze"
+  }'
 ```
 
 ### 7.5) Suspend / unsuspend a card
