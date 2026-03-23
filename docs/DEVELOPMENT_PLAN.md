@@ -9,7 +9,7 @@ adaptcard is an open, general-purpose learning engine where the core unit is a k
 
 Core principles:
 - Knowledge-point-first data model
-- FSRS-based review scheduling
+- Evidence-based spaced repetition scheduling
 - Dynamic quiz generation from AI
 - Explainable mastery scoring
 - Privacy-first architecture with local model support
@@ -41,7 +41,7 @@ Quality metrics:
 
 Current state:
 - Single service backend (Fastify + SQLite)
-- FSRS integration
+- Spaced repetition scheduling integration
 - Dynamic quiz generation adapters (mock/openai/ollama)
 
 Target architecture (incremental):
@@ -55,57 +55,106 @@ Target architecture (incremental):
 
 ## 4. Phased Roadmap
 
-## Phase 0 - Foundation (done/ongoing)
-- Repository bootstrap
-- Base API skeleton
+### Phase 0 — Foundation ✅ Done
+- Repository bootstrap, base API skeleton
 - SQLite schema for knowledge points, generated cards, review logs
-- FSRS scheduling loop (basic)
+- Spaced repetition scheduling loop (basic)
 
-Exit criteria:
-- A user can complete create -> generate -> submit -> next due flow
+### Phase 1 — M1 Parity ✅ Done
+- Review session lifecycle (start / progress / finish)
+- Deck hierarchy with guardrails
+- Notes/cards model with basic, reverse, cloze templates
+- Card browser query primitives (search / filter / sort / paginate)
+- Card state controls (suspend / unsuspend)
+- Bulk browser actions (move-deck, retag)
+- Session undo (atomic rollback of last review action)
+- Saved browser filter presets
+- OpenAPI draft published and drift-guarded via `npm run check:openapi`
 
-## Phase 1 - MVP for real usage (next)
-- Add user/account model and data isolation
-- Add auth (API key or JWT)
-- Add richer question types (cloze, multiple choice, reverse recall)
-- Add deterministic scoring strategy and answer normalization rules
-- Add card pin/unpin and cleanup policy controls
-- Add API validation and standardized error responses
+---
 
-Exit criteria:
-- Single user can use daily with stable behavior and no manual DB work
+### Phase 2 — Study Session Quality (Active)
 
-## Phase 2 - Learning intelligence
-- Mastery model v2 (accuracy + confidence + response time)
-- Review analytics endpoints (retention trend, weak point clusters)
-- Prompt quality tuning by topic type
-- Retry strategy when AI generation fails
-- Optional hybrid mode (template-first + AI augmentation)
+Goal: make adaptive review more useful and trustworthy for real daily use.
 
-Exit criteria:
-- Better retention metrics than fixed-card baseline in small trials
+#### 2.1 Filtered / custom study sessions
+- Allow starting a session scoped by `deckId`, `tags`, `state`, and due-date window
+- This is the highest-value review UX gap after M1
 
-## Phase 3 - User experience
-- Web frontend with:
-  - Today queue
-  - Quiz player
-  - Review history
-  - Mastery heatmap
-- Daily/weekly progress reports
-- Import/export and backup tools
+#### 2.2 Smarter scheduling
+- Surface review load metrics per deck (due count, overdue backlog)
+- Add per-knowledge-point mastery trend (accuracy over last N sessions)
+- Optional: configurable retention target per deck
 
-Exit criteria:
-- End-to-end usage without API tools
+#### 2.3 Quiz generation quality
+- Prompt versioning and per-domain prompt templates
+- Graceful fallback to template-based questions on AI failure
+- Optional hybrid mode: AI questions augment a template-first baseline
 
-## Phase 4 - Open-source maturity
-- CI pipeline (lint/test/build)
-- Versioned releases and changelog policy
-- Plugin-style AI adapters
-- Contributor-friendly dev tooling and starter issues
-- Security hardening and dependency policy
+#### 2.4 Card rendering helpers
+- Expose rendered `prompt` and `answer` sides in card/review payloads
+- Clients should not need to re-implement cloze/reverse template logic to display cards
 
-Exit criteria:
-- Reliable external contributions and predictable release cadence
+Exit criteria: A single user can run a filtered daily session, see their retention trend, and trust that AI failure degrades gracefully.
+
+---
+
+### Phase 3 — Auth and Multi-User ✅ Prerequisite for public launch
+
+Goal: support multiple isolated users on a single deployment.
+
+- User/account model with data isolation
+- Auth layer: API key or JWT (OAuth optional)
+- Admin endpoint for user management (invite, disable)
+- Migration of existing single-user data to user-scoped model
+
+Exit criteria: Two independent users on the same instance cannot see each other's data.
+
+---
+
+### Phase 4 — Frontend Learner Workspace
+
+Goal: end-to-end usage without curl or API clients.
+
+See [`docs/FRONTEND_PRODUCT_SPEC.md`](FRONTEND_PRODUCT_SPEC.md) for full surface area.
+
+Delivery sequence:
+- F1: shell + dashboard (today's due count, retention trend) + review player
+- F2: card browser and bulk edit actions
+- F3: knowledge studio (create / edit / AI preview)
+- F4: analytics, settings, data export, accessibility audit
+
+Exit criteria: A non-technical user can complete the full learn→review→track cycle without opening a terminal.
+
+---
+
+### Phase 5 — Developer Platform
+
+Goal: adaptcard becomes infrastructure others build on.
+
+- SDK / client library (TypeScript-first)
+- Integration guide and embedding cookbook
+- Plugin-style question strategy interface (custom scoring, custom question shapes)
+- Webhook hooks for review events (for LMS integration)
+- Versioned releases with a changelog policy
+
+Exit criteria: A third-party builder can embed adaptcard review loops into their product using the SDK without reading source code.
+
+---
+
+### Phase 6 — Operational Maturity
+
+Goal: reliable self-hosted and cloud deployment.
+
+- Docker and compose-first packaging
+- One-click deploy profiles (Railway, Fly.io, 1Panel)
+- CI pipeline: lint / test / build / OpenAPI drift check per PR
+- PostgreSQL support for multi-tenant scale
+- Security hardening, dependency policy, vulnerability disclosure process
+
+Exit criteria: A new deployer can go from zero to a production instance in under 15 minutes.
+
+---
 
 ## 5. Engineering Standards
 
@@ -118,6 +167,7 @@ Testing strategy:
 - Unit tests for scheduler, mastery mapping, answer scoring
 - Integration tests for API flow with test DB
 - Contract tests for AI adapters (mocked network)
+- OpenAPI drift checks as a CI gate
 
 Reliability:
 - Structured logs for generation/review paths
@@ -135,33 +185,35 @@ Current schema:
 - knowledge_points
 - generated_cards
 - review_logs
+- review_sessions / review_session_items
+- decks
+- notes / cards
+- card_browser_filters
 
 Planned additions:
 - users
-- decks/collections
-- review_sessions
-- analytics_snapshots
+- analytics_snapshots (retention trend per knowledge point)
 
 Rules:
-- All schema changes must include forward migration
+- All schema changes must include a forward migration
 - Keep historical review logs append-only
-- Preserve FSRS fields for reproducibility
+- Preserve scheduling state fields for reproducibility
 
 ## 7. AI Strategy
 
 Provider priority:
-1) local-first (Ollama)
-2) OpenAI-compatible cloud
-3) mock fallback for development
+1. Local-first (Ollama)
+2. OpenAI-compatible cloud
+3. Deterministic mock fallback for development
 
 Model quality control:
-- Prompt versioning
-- JSON schema constraints
+- Prompt versioning per domain
+- JSON schema constraints on generation output
 - Safety and hallucination checks for generated answers
 
 Operational constraints:
 - Timeouts and retries per provider
-- Graceful fallback to simple template-based questions
+- Graceful fallback to template-based questions on AI failure
 
 ## 8. Governance and Release Rhythm
 
@@ -180,19 +232,22 @@ Definition of done:
 - Tests pass (where applicable)
 - Docs updated
 - Migration included (if schema changes)
+- OpenAPI drift check passes (if routes changed)
 
-## 9. Immediate Next Tasks (Top 10)
+## 9. Immediate Next Tasks (post Run I)
 
-1. Add auth and user isolation
-2. Expand automated tests to include review flow integration and route-level validation coverage
-3. Implement deck/collection model
-4. Implement question type strategy
-5. Add review session tracking endpoint
-6. Add CI workflow
-7. Add OpenAPI spec draft
-8. Start polished frontend implementation from `docs/FRONTEND_PRODUCT_SPEC.md`
-9. Add telemetry events for product metrics
-10. Add API idempotency guard for quiz submission
+Ordered by value and dependency:
+
+1. **Filtered study sessions** — scope by deck / tag / state / due window (`POST /review-sessions/start` extension)
+2. **Card rendering helpers** — expose rendered prompt/answer in card payloads for all template types
+3. **Mastery analytics endpoints** — per-knowledge-point accuracy trend, per-deck due count and overdue summary
+4. **Prompt template versioning** — version field in prompts, domain-aware template selection
+5. **OpenAPI depth pass** — full response body schemas + error envelope examples, tighten drift check to method level
+6. **CI pipeline** — lint / test / build / OpenAPI drift check on every PR
+7. **Auth + user isolation** — API key auth, user-scoped data model, prerequisite for public deployment
+8. **Frontend shell (F1)** — dashboard + review player as first frontend milestone
+9. **Docker packaging** — compose-first, single-command local deployment
+10. **SDK scaffold** — TypeScript client wrapping the OpenAPI contract
 
 ### 2026-02-28 Maintenance update
 
@@ -349,25 +404,25 @@ Next cycle focus:
 - Deepen OpenAPI schemas and examples for response bodies + error codes, then tighten drift checks to method-level coverage.
 - Start filtered/custom study session baseline (`state + due window + deck scope`) to advance P1 parity.
 
-## 10. Strategic expansion tracks
+## 10. Strategic Expansion Tracks
 
-Track A - Anki-level completeness:
-- Follow `docs/ANKI_PARITY_PLAN.md` for browser, deck, note/card, and advanced review controls.
+### Track A — Learner Experience
+Deliver a polished frontend that makes adaptcard accessible to non-technical users. Follow `docs/FRONTEND_PRODUCT_SPEC.md` for phase sequence and UX quality bar.
 
-Track B - One-click deployment:
-- Follow `docs/DEPLOYMENT_BLUEPRINT.md` to support 1Panel and compose-first deployment.
+### Track B — Developer Platform
+Make adaptcard the infrastructure layer other products are built on. Goals: TypeScript SDK, embedding cookbook, pluggable question strategy interface, webhook events, versioned releases.
 
-Track C - Premium project presentation:
-- Maintain rich docs, diagrams, and visual assets in README and `docs/assets/`.
+### Track C — Operational Maturity
+Enable reliable self-hosted and cloud deployment. Goals: Docker/compose packaging, one-click deploy profiles (Railway, Fly.io, 1Panel), CI/CD pipeline, PostgreSQL backend option, security hardening.
 
-Track D - Ecosystem growth:
-- Publish API/SDK guidance and extension hooks for third-party builders.
+### Track D — Learning Intelligence
+Deepen the scheduling and analytics surface. Goals: mastery trend analytics, per-deck retention reporting, configurable retention targets, hybrid AI+template generation modes.
 
-## 11. Non-goals (for now)
+## 11. Non-Goals (for now)
 
-- Heavy social/community features
+- Heavy social/community features (social leaderboards, public sharing)
 - Native mobile app before web workflow stabilizes
-- Complex enterprise admin features
+- Complex enterprise admin and SSO features
 
 ## 12. Maintenance Ownership Notes
 
@@ -375,3 +430,4 @@ When extending features:
 - Update this plan if priorities or milestones change
 - Keep architecture and migration notes in sync
 - Prefer small PRs tied to roadmap items
+- Run `npm run check:openapi` before merging any route changes

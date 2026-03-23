@@ -1,120 +1,159 @@
+<div align="center">
+
+<img src="assets/banner.png" alt="adaptcard banner" width="100%"/>
+
 # adaptcard
 
-![adaptcard hero](docs/assets/hero.svg)
+**An open-source adaptive learning engine — spaced repetition scheduling meets AI-generated assessment.**
 
-Open Learning Engine for adaptive practice, powered by FSRS scheduling and AI-generated assessment.
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue?style=for-the-badge&logo=typescript)](https://www.typescriptlang.org/)
+[![Fastify](https://img.shields.io/badge/Fastify-5.x-black?style=for-the-badge&logo=fastify)](https://www.fastify.io/)
+[![SQLite](https://img.shields.io/badge/SQLite-WAL-lightgrey?style=for-the-badge&logo=sqlite)](https://www.sqlite.org/)
+[![OpenAPI](https://img.shields.io/badge/OpenAPI-draft-green?style=for-the-badge&logo=swagger)](docs/openapi.yaml)
 
-> Build adaptive learning workflows for any domain: history, algorithms, sports, language, certifications, and more.
+[Features](#-key-features) • [Quick Start](#-quick-start) • [API Examples](#-api-usage-examples) • [Documentation](docs/) • [Contributing](CONTRIBUTING.md)
 
-## Why adaptcard
+</div>
 
-Most learning tools are either static flashcards or heavy LMS platforms.
-adaptcard is the middle layer: a composable engine that gives you adaptive scheduling + dynamic assessment generation.
+---
 
-- Domain-agnostic knowledge point model
-- FSRS-powered review scheduling
-- AI-generated fresh quiz content per review session
-- API-first backend for integration into your own product
-- Local-model support (Ollama) for privacy-sensitive setups
+## 🌟 What is adaptcard?
 
-## Core capabilities
+**adaptcard** is a **composable, API-first learning engine** that combines two proven techniques:
 
-- Store reusable knowledge points (`front`, `back`, `context`, `tags`)
-- Generate quiz sets on demand (`mock`, `openai`, `ollama`)
-- Map answer accuracy into FSRS rating updates
-- Keep generated cards for 3 days by default (with optional pinning)
-- Return next due review based on spaced repetition state
+1. 🧠 **Spaced repetition scheduling** — an evidence-based algorithm that determines the optimal moment to review each item, minimizing review load while maximizing long-term retention.
+2. ✨ **AI-generated quiz content** — fresh questions are generated at review time, so you're tested on genuine understanding rather than pattern-matching.
 
-## MVP feature status
+It is **domain-agnostic** by design. Use the same engine to build study workflows for software engineering, history, language learning, professional certifications, fitness coaching, or any knowledge-intensive domain.
 
-- ✅ Knowledge point create/list and due-item retrieval
-- ✅ AI quiz generation + deterministic scoring normalization
-- ✅ Review session lifecycle (`start` / `progress` / `finish`)
-- ✅ Deck hierarchy baseline (`create` / `list` / `detail` / `update` / `delete leaf`)
-- ✅ Deck hierarchy integration coverage (route-level flow + guardrails)
-- ✅ Notes/cards baseline split with deck linkage and template-based card generation
-- ✅ Card browser query primitives (`search`, `deckId`, `state`, `sortBy`, `sortOrder`, `limit`, `offset`)
-- ✅ Card state controls (`POST /cards/:id/suspend`, `POST /cards/:id/unsuspend`)
-- ✅ Bulk browser actions baseline (`POST /cards/bulk/move-deck`, `POST /cards/bulk/retag`)
-- ✅ Session safety control: undo last review within active review session (`POST /review-sessions/:id/undo-last-review`)
-- ✅ Card browser saved filters/query presets scaffold (`POST /cards/filters`, `GET /cards/filters`, `GET /cards/filters/:id/apply`)
-- ✅ OpenAPI draft published at `docs/openapi.yaml`
+> 💡 **adaptcard is the infrastructure layer. You bring the knowledge; adaptcard handles when and how to test it.**
 
-## API surface at a glance
+---
 
-| Capability | Endpoint(s) | Status |
-| --- | --- | --- |
-| Health check | `GET /health` | ✅ |
-| Knowledge points | `POST /knowledge-points`, `GET /knowledge-points`, `GET /reviews/next` | ✅ |
-| Quiz generation/submission | `POST /quiz/generate`, `POST /quiz/submit` | ✅ |
-| Review session lifecycle | `POST /review-sessions/start`, `GET /review-sessions/:id`, `POST /review-sessions/:id/finish` | ✅ |
-| Session safety controls | `POST /review-sessions/:id/undo-last-review` | ✅ |
-| Deck hierarchy | `POST /decks`, `GET /decks`, `GET /decks/:id`, `PATCH /decks/:id`, `DELETE /decks/:id` | ✅ |
-| Notes baseline | `POST /notes`, `GET /notes` | ✅ |
-| Card browser query MVP | `GET /cards` | ✅ |
-| Card state controls | `POST /cards/:id/suspend`, `POST /cards/:id/unsuspend` | ✅ |
-| Bulk browser actions (MVP) | `POST /cards/bulk/move-deck`, `POST /cards/bulk/retag` | ✅ |
-| Saved browser filters (scaffold) | `POST /cards/filters`, `GET /cards/filters`, `GET /cards/filters/:id/apply` | ✅ |
+## 🎯 Why adaptcard?
 
-Maintenance cadence: a roadmap-driven hardening cycle runs every 3 days and records outcomes in `docs/DEVELOPMENT_PLAN.md` + `docs/MAINTENANCE_RUNBOOK.md`.
+| Category | Traditional tools | adaptcard |
+|---|---|---|
+| **Static flashcard apps** | Fixed, pre-authored questions | ✅ AI-generated questions per session |
+| **Heavy LMS platforms** | Monolithic, opinionated, hard to extend | ✅ Composable REST API — integrate into anything |
+| **Raw scheduling libraries** | No content layer, no quiz lifecycle | ✅ Full session lifecycle with scheduling |
+| **Proprietary AI tutors** | Closed, subscription-gated | ✅ Open-source, self-hostable, local-model support |
 
-## Stack
+---
 
-- TypeScript + Fastify
-- SQLite (`better-sqlite3`)
-- FSRS (`ts-fsrs`)
+## 🚀 Key Features
 
-## Quick start
+- 📦 **Domain-agnostic knowledge model** — store any topic with `front`, `back`, `context`, and `tags`
+- 🧠 **Spaced repetition scheduling** — evidence-based algorithm that optimizes review intervals per item
+- ✨ **AI quiz generation** — fresh questions per session via OpenAI, Ollama, or a deterministic mock
+- 🔁 **Full review session lifecycle** — start → progress → undo → finish with atomic state tracking
+- 🗂 **Deck hierarchy** — nested decks with guardrails (no orphan deletes, clean tree management)
+- 🃏 **Card browser** — query, filter, suspend, bulk retag, bulk move, and save query presets
+- 📝 **Note + card templates** — `basic`, `reverse`, and `cloze` card types
+- 🔒 **Local-model support** — full Ollama integration for privacy-sensitive or air-gapped setups
+- 📄 **OpenAPI spec** — machine-readable contract at [`docs/openapi.yaml`](docs/openapi.yaml)
+
+---
+
+## ⚡ Quick Start
+
+Get up and running locally in seconds:
 
 ```bash
+# 1. Clone the repository
 git clone https://github.com/fkx816/adaptcard.git
 cd adaptcard
+
+# 2. Install dependencies
 npm install --include=dev
+
+# 3. Configure environment
 cp .env.example .env
+
+# 4. Start the development server
 npm run dev
 ```
 
-Health check:
-
+Verify the server is running:
 ```bash
 curl http://127.0.0.1:8787/health
 ```
 
-## Environment variables
+---
 
-- `PORT` - HTTP port
-- `DATABASE_PATH` - SQLite path
-- `AI_PROVIDER` - `mock` | `openai` | `ollama`
-- `OPENAI_BASE_URL` / `OPENAI_API_KEY` / `OPENAI_MODEL`
-- `OLLAMA_BASE_URL` / `OLLAMA_MODEL`
+## ⚙️ Configuration
 
-See `.env.example`.
+Manage your environment through variables:
 
-## API (MVP)
+| Variable | Description | Default |
+|---|---|---|
+| `PORT` | HTTP port | `8787` |
+| `DATABASE_PATH` | SQLite database file path | — |
+| `AI_PROVIDER` | `mock` \| `openai` \| `ollama` | `mock` |
+| `OPENAI_BASE_URL` | Custom OpenAI-compatible base URL | — |
+| `OPENAI_API_KEY` | OpenAI API key | — |
+| `OPENAI_MODEL` | Model identifier | — |
+| `OLLAMA_BASE_URL` | Ollama server URL | — |
+| `OLLAMA_MODEL` | Ollama model name | — |
 
-### Recommended review flow
+> 📚 *See `.env.example` for a full reference.*
 
-1) Create a knowledge point
-2) Start a review session (`/review-sessions/start`)
-3) Generate quiz cards (`/quiz/generate`)
-4) Submit answers with `reviewSessionId`
-5) Finish session (`/review-sessions/:id/finish`) and read summary
+---
 
-### 1) Create knowledge point
+## 🗺️ API Overview
+
+<details>
+<summary><strong>View all endpoints</strong></summary>
+
+| Area | Method | Path | Status |
+|---|---|---|:---:|
+| Health | `GET` | `/health` | ✅ |
+| Knowledge points | `POST` / `GET` | `/knowledge-points` | ✅ |
+| Next due item | `GET` | `/reviews/next` | ✅ |
+| Quiz generate | `POST` | `/quiz/generate` | ✅ |
+| Quiz submit | `POST` | `/quiz/submit` | ✅ |
+| Review sessions | `POST` / `GET` | `/review-sessions/start`, `/review-sessions/:id` | ✅ |
+| Session finish | `POST` | `/review-sessions/:id/finish` | ✅ |
+| Undo last review | `POST` | `/review-sessions/:id/undo-last-review` | ✅ |
+| Decks (CRUD) | `POST`/`GET`/`PATCH`/`DELETE` | `/decks`, `/decks/:id` | ✅ |
+| Notes | `POST` / `GET` | `/notes` | ✅ |
+| Card browser | `GET` | `/cards` | ✅ |
+| Suspend / unsuspend| `POST` | `/cards/:id/suspend`, `/cards/:id/unsuspend` | ✅ |
+| Bulk move / retag | `POST` | `/cards/bulk/move-deck`, `/cards/bulk/retag` | ✅ |
+| Saved filters | `POST` / `GET` | `/cards/filters`, `/cards/filters/:id/apply` | ✅ |
+
+</details>
+
+### Recommended Review Flow
+
+```mermaid
+graph TD;
+    A[1. Create knowledge point] --> B[2. Start review session];
+    B --> C[3. Generate quiz cards];
+    C --> D[4. Submit answers];
+    D -.-> E((5. Undo last review?));
+    D --> F[6. Finish session];
+```
+
+---
+
+## 💻 API Usage Examples
+
+### 1️⃣ Create a knowledge point
 
 ```bash
 curl -X POST http://127.0.0.1:8787/knowledge-points \
   -H 'content-type: application/json' \
-  -d '{"front":"binary search","back":"O(log n) divide-and-conquer lookup","tags":["algorithms","cs"]}'
+  -d '{
+    "front": "What is binary search?",
+    "back": "O(log n) divide-and-conquer lookup in a sorted array.",
+    "context": "Classic algorithm design",
+    "tags": ["algorithms", "cs"]
+  }'
 ```
 
-### 2) Get next due review item
-
-```bash
-curl http://127.0.0.1:8787/reviews/next
-```
-
-### 3) Start a review session
+### 2️⃣ Start a review session
 
 ```bash
 curl -X POST http://127.0.0.1:8787/review-sessions/start \
@@ -122,287 +161,159 @@ curl -X POST http://127.0.0.1:8787/review-sessions/start \
   -d '{}'
 ```
 
-### 4) Generate quiz for a knowledge point
+### 3️⃣ Generate a quiz
 
 ```bash
 curl -X POST http://127.0.0.1:8787/quiz/generate \
   -H 'content-type: application/json' \
-  -d '{"knowledgePointId":"<id>","count":3,"pin":false}'
+  -d '{"knowledgePointId": "<id>", "count": 3, "pin": false}'
 ```
 
-### 5) Submit quiz answers
+---
+
+## 🃏 Deck and Card Management
+
+<details>
+<summary><strong>Show Deck & Card Commands</strong></summary>
+
+### Create nested decks
 
 ```bash
-curl -X POST http://127.0.0.1:8787/quiz/submit \
-  -H 'content-type: application/json' \
-  -d '{
-    "cardId":"<card-id>",
-    "reviewSessionId":"<session-id>",
-    "answers":[
-      {"questionId":"q1","userAnswer":"O(log n) divide-and-conquer lookup"}
-    ]
-  }'
-```
-
-Response includes `correctRate`, mapped `rating`, and `nextDueAt`.
-
-### 6) Create and organize decks
-
-```bash
+# Create a top-level deck
 curl -X POST http://127.0.0.1:8787/decks \
   -H 'content-type: application/json' \
-  -d '{"name":"Algorithms"}'
+  -d '{"name": "Algorithms"}'
 
+# Create a child deck
 curl -X POST http://127.0.0.1:8787/decks \
   -H 'content-type: application/json' \
-  -d '{"name":"Graph Theory","parentId":"<algorithms-deck-id>"}'
-
-curl http://127.0.0.1:8787/decks
-curl http://127.0.0.1:8787/decks/<deck-id>
+  -d '{"name": "Graph Theory", "parentId": "<algorithms-deck-id>"}'
 ```
 
-Update and delete constraints:
+### Create notes with card templates
+
+| `cardType` | Cards generated | Description |
+|---|:---:|---|
+| `basic` | 1 | Standard front → back recall |
+| `reverse` | 2 | Adds mirrored back → front card |
+| `cloze` | N | One card per `{{cN::...}}` marker |
 
 ```bash
-curl -X PATCH http://127.0.0.1:8787/decks/<deck-id> \
-  -H 'content-type: application/json' \
-  -d '{"name":"Algorithms Core"}'
-
-curl -X DELETE http://127.0.0.1:8787/decks/<leaf-deck-id>
-```
-
-### 7) Create notes and inspect cards (browser MVP)
-
-Template behavior quick reference:
-
-| `cardType` | Generated cards | Notes |
-| --- | --- | --- |
-| `basic` | 1 (`basic`) | Standard front -> back recall |
-| `reverse` | 2 (`basic`, `reverse`) | Creates mirrored prompts for both directions |
-| `cloze` | N (`cloze:1..N`) | Requires `{{cN::...}}` markers in `front` or `back` |
-
-```bash
+# Basic card
 curl -X POST http://127.0.0.1:8787/notes \
   -H 'content-type: application/json' \
   -d '{
-    "deckId":"<deck-id>",
-    "front":"When should you use BFS?",
-    "back":"When shortest path in an unweighted graph matters",
-    "tags":["algorithms","graphs"],
-    "cardType":"basic"
-  }'
-
-curl 'http://127.0.0.1:8787/cards?search=shortest&state=new&sortBy=dueAt&sortOrder=asc&limit=20&offset=0'
-```
-
-Cloze template example (creates one card per cloze index):
-
-```bash
-curl -X POST http://127.0.0.1:8787/notes \
-  -H 'content-type: application/json' \
-  -d '{
-    "deckId":"<deck-id>",
-    "front":"TCP starts with {{c1::SYN}}",
-    "back":"Then {{c2::SYN-ACK}}, then {{c3::ACK}}",
-    "cardType":"cloze"
+    "deckId": "<deck-id>",
+    "front": "When should you use BFS?",
+    "back": "When finding the shortest path in an unweighted graph.",
+    "tags": ["algorithms", "graphs"],
+    "cardType": "basic"
   }'
 ```
 
-### 7.5) Suspend / unsuspend a card
+### Browse and manage cards
 
 ```bash
+# Search and filter
+curl 'http://127.0.0.1:8787/cards?search=shortest&state=new&sortBy=dueAt&sortOrder=asc&limit=20'
+
+# Suspend / unsuspend
 curl -X POST http://127.0.0.1:8787/cards/<card-id>/suspend
 curl -X POST http://127.0.0.1:8787/cards/<card-id>/unsuspend
 ```
+</details>
 
-Unsuspend behavior is deterministic:
-- returns to `new` when `reps = 0`
-- returns to `review` when `reps > 0`
+---
 
-### 7.8) Bulk browser actions (move deck + retag)
+## 🌍 Domain Examples
 
-```bash
-curl -X POST http://127.0.0.1:8787/cards/bulk/move-deck \
-  -H 'content-type: application/json' \
-  -d '{"cardIds":["<card-a>","<card-b>"],"deckId":"<target-deck-id>"}'
+adaptcard is **content-neutral**. The same API works across radically different domains:
 
-curl -X POST http://127.0.0.1:8787/cards/bulk/retag \
-  -H 'content-type: application/json' \
-  -d '{"cardIds":["<card-a>","<card-b>"],"addTags":["priority"],"removeTags":["legacy"]}'
-```
-
-Use this to execute browser-level maintenance in one shot (triage, migration, and queue hygiene).
-
-### 7.85) Save and apply browser filters/query presets
-
-```bash
-curl -X POST http://127.0.0.1:8787/cards/filters \
-  -H 'content-type: application/json' \
-  -d '{
-    "name":"Graph triage",
-    "query":{
-      "search":"graph",
-      "state":"new",
-      "sortBy":"updatedAt",
-      "sortOrder":"desc",
-      "limit":20,
-      "offset":0
-    }
-  }'
-
-curl http://127.0.0.1:8787/cards/filters
-curl http://127.0.0.1:8787/cards/filters/<filter-id>/apply
-```
-
-Use saved filters to make repeated browser triage workflows one-click and consistent across sessions.
-
-### 7.9) Undo the latest review action in an active session
-
-```bash
-curl -X POST http://127.0.0.1:8787/review-sessions/<session-id>/undo-last-review
-```
-
-Undo behavior:
-- restores the previous FSRS scheduling state for the affected knowledge point,
-- removes the latest session-linked review log,
-- decrements session reviewed/correct counters atomically.
-
-### 8) Finish and inspect review session
-
-```bash
-curl -X POST http://127.0.0.1:8787/review-sessions/<session-id>/finish \
-  -H 'content-type: application/json' \
-  -d '{}'
-
-curl http://127.0.0.1:8787/review-sessions/<session-id>
-```
-
-## API error contract
-
-All non-2xx responses return a consistent envelope:
-
-```json
-{
-  "error": {
-    "code": "VALIDATION_ERROR",
-    "message": "Request validation failed",
-    "details": []
-  }
-}
-```
-
-Common error codes:
-- `VALIDATION_ERROR`
-- `KNOWLEDGE_POINT_NOT_FOUND`
-- `CARD_NOT_FOUND`
-- `INTERNAL_ERROR`
-- `REVIEW_SESSION_NOT_FOUND`
-- `REVIEW_SESSION_ALREADY_FINISHED`
-- `REVIEW_LOG_NOT_FOUND`
-- `UNDO_NOT_AVAILABLE`
-- `DECK_NOT_FOUND`
-- `PARENT_DECK_NOT_FOUND`
-- `INVALID_DECK_PARENT`
-- `DECK_HAS_CHILDREN`
-- `CARD_FILTER_NOT_FOUND`
-
-## Quality checks
-
-```bash
-npm run lint
-npm run test
-npm run build
-```
-
-## Scenario demo requests
-
-These examples show how the same engine works across very different domains.
-
-### A) History
+<details>
+<summary><strong>📖 History</strong></summary>
 
 ```bash
 curl -X POST http://127.0.0.1:8787/knowledge-points \
   -H 'content-type: application/json' \
   -d '{
-    "front":"What triggered World War I?",
-    "back":"The assassination of Archduke Franz Ferdinand in 1914.",
-    "context":"Early 20th century Europe, alliance tensions",
-    "tags":["history","ww1"]
+    "front": "What triggered World War I?",
+    "back": "The assassination of Archduke Franz Ferdinand in Sarajevo, 1914.",
+    "context": "Early 20th-century Europe, escalating alliance tensions",
+    "tags": ["history", "ww1"]
   }'
 ```
+</details>
 
-### B) Algorithms
+<details>
+<summary><strong>💻 Algorithms</strong></summary>
 
 ```bash
 curl -X POST http://127.0.0.1:8787/knowledge-points \
   -H 'content-type: application/json' \
   -d '{
-    "front":"When should you use BFS instead of DFS?",
-    "back":"Use BFS when shortest path in an unweighted graph matters.",
-    "context":"Graph traversal strategy selection",
-    "tags":["algorithms","graphs"]
+    "front": "When should you use BFS instead of DFS?",
+    "back": "Use BFS when shortest path in an unweighted graph matters.",
+    "context": "Graph traversal strategy selection",
+    "tags": ["algorithms", "graphs"]
   }'
 ```
+</details>
 
-### C) Sports
+<details>
+<summary><strong>🏋️ Sports & Fitness</strong></summary>
 
 ```bash
 curl -X POST http://127.0.0.1:8787/knowledge-points \
   -H 'content-type: application/json' \
   -d '{
-    "front":"What is progressive overload?",
-    "back":"Gradually increasing training stress over time to drive adaptation.",
-    "context":"Strength training fundamentals",
-    "tags":["sports","fitness","training"]
+    "front": "What is progressive overload?",
+    "back": "Gradually increasing training stress over time to drive physiological adaptation.",
+    "context": "Strength training fundamentals",
+    "tags": ["sports", "fitness", "training"]
   }'
 ```
+</details>
 
-Then run:
+---
 
-```bash
-curl -X POST http://127.0.0.1:8787/quiz/generate \
-  -H 'content-type: application/json' \
-  -d '{"knowledgePointId":"<id-from-create>","count":4,"pin":false}'
-```
+## 🛠 Tech Stack
 
-## Project layout
+| Layer | Technology |
+|---|---|
+| **Runtime** | Node.js (ESM) |
+| **Language** | TypeScript 5.x |
+| **HTTP Framework** | Fastify 5.x |
+| **Database** | SQLite via `better-sqlite3` (WAL mode) |
+| **Scheduling Algorithm** | FSRS via `ts-fsrs` |
+| **Schema Validation** | Zod |
+| **AI Providers** | OpenAI API, Ollama, or deterministic mock |
 
-- `src/server.ts` - app entry
-- `src/db/` - sqlite + migration
-- `src/models/` - persistence access
-- `src/services/` - FSRS, quiz generation, review scoring
-- `src/routes/` - API routes
+---
 
-## Roadmap highlights
+## 📈 Roadmap
 
-- More question strategies (cloze, reverse recall, scenario simulation)
-- Explainable mastery model beyond raw accuracy
-- User/accounts + multi-tenant data isolation
-- Frontend learner workspace
-- SDK and integration guides for external products
-- Anki-level browser and card management parity
-- One-click deployment profiles
+- **Phase 1** — MVP & Core API (✅ Completed)
+- **Phase 2** — Study Session Quality *(active)*
+- **Phase 3** — Auth and Multi-User
+- **Phase 4** — Frontend Learner Workspace
+- **Phase 5** — Developer Platform
+- **Phase 6** — Operational Maturity
 
-## Production-readiness snapshot
+> *See [DEVELOPMENT_PLAN.md](docs/DEVELOPMENT_PLAN.md) for full details.*
 
-- Deterministic scoring normalization for safer answer grading
-- Stable machine-readable error envelope for all non-2xx responses
-- Review session tracking endpoints for analytics-ready study runs
-- SQLite WAL mode enabled by default for local durability
+---
 
-## Planning and maintenance
+## 🤝 Contributing & Community
 
-- Full roadmap: `docs/DEVELOPMENT_PLAN.md`
-- Maintenance runbook: `docs/MAINTENANCE_RUNBOOK.md`
-- Product positioning: `docs/PRODUCT_POSITIONING.md`
-- Anki parity plan: `docs/ANKI_PARITY_PLAN.md`
-- Frontend product spec: `docs/FRONTEND_PRODUCT_SPEC.md`
-- Deployment blueprint: `docs/DEPLOYMENT_BLUEPRINT.md`
-- OpenAPI draft: `docs/openapi.yaml`
+Contributions, issues, and feature requests are welcome!
 
-## Open-source docs
+| Resource | Link |
+|---|---|
+| ⚖️ **License** | [MIT](LICENSE) |
+| 📖 **Contributing guide**| [CONTRIBUTING.md](CONTRIBUTING.md) |
+| 🛡️ **Security policy** | [SECURITY.md](SECURITY.md) |
+| 🫂 **Code of conduct** | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) |
 
-- `LICENSE`
-- `CONTRIBUTING.md`
-- `SECURITY.md`
-- `CODE_OF_CONDUCT.md`
+<div align="center">
+  <sub>Built with ❤️ by the adaptcard community.</sub>
+</div>
