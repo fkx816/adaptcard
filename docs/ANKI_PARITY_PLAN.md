@@ -143,3 +143,10 @@ M4: Plugin API alpha and public extension docs
 - Added integration tests for reverse/cloze card expansion plus validation guardrail when cloze markup is missing.
 - Expanded OpenAPI route coverage to the full integration-tested API surface and added `check:openapi` drift checks.
 - P0 template coverage is now functionally present (`basic`, `reverse`, `cloze`); next parity gap shifts to browser rendering fidelity and filtered/custom study controls.
+
+## 2026-03-25 progress note (Run J)
+
+- Implemented scoped custom study session baseline: `POST /review-sessions/start` now accepts `scope` (`deckId`, `tags`, `state`, `dueBefore`, `dueAfter`) and persists it.
+- Added scoped queue endpoint `GET /review-sessions/:id/queue` to return ordered card candidates matching the session scope.
+- Added integration coverage for scope persistence + queue filtering behavior and missing-session guardrail.
+- P1 filtered/custom study control has moved from plan-only to working API baseline; next parity gap is rendered prompt/answer helpers for reverse/cloze card display.

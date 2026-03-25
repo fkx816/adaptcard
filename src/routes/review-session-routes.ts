@@ -13,12 +13,26 @@ import {
 import { getSessionAccuracy } from "../services/review-session-metrics.js";
 import { updateKnowledgePointReview } from "../models/knowledge-point.js";
 
+const sessionScopeSchema = z.object({
+  deckId: z.string().min(1).optional(),
+  tags: z.array(z.string().trim().min(1)).max(20).optional(),
+  state: z.enum(["new", "learning", "review", "relearning", "suspended"]).optional(),
+  dueBefore: z.string().datetime().optional(),
+  dueAfter: z.string().datetime().optional()
+});
+
 const startSchema = z.object({
-  startedAt: z.string().datetime().optional()
+  startedAt: z.string().datetime().optional(),
+  scope: sessionScopeSchema.optional()
 });
 
 const finishSchema = z.object({
   endedAt: z.string().datetime().optional()
+});
+
+const queueQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  offset: z.coerce.number().int().min(0).default(0)
 });
 
 const reviewLogDetailSchema = z.object({
@@ -40,12 +54,67 @@ const reviewLogDetailSchema = z.object({
   })
 });
 
+function parseSessionScope(scopeRaw: string | null | undefined): z.infer<typeof sessionScopeSchema> | null {
+  if (!scopeRaw) {
+    return null;
+  }
+
+  const parsed = JSON.parse(scopeRaw);
+  return sessionScopeSchema.parse(parsed);
+}
+
+function buildQueueWhere(scope: z.infer<typeof sessionScopeSchema> | null): { whereClause: string; params: string[] } {
+  if (!scope) {
+    return { whereClause: "", params: [] };
+  }
+
+  const whereParts: string[] = [];
+  const params: string[] = [];
+
+  if (scope.deckId) {
+    whereParts.push("c.deck_id = ?");
+    params.push(scope.deckId);
+  }
+
+  if (scope.state) {
+    whereParts.push("c.state = ?");
+    params.push(scope.state);
+  }
+
+  if (scope.dueBefore) {
+    whereParts.push("c.due_at <= ?");
+    params.push(scope.dueBefore);
+  }
+
+  if (scope.dueAfter) {
+    whereParts.push("c.due_at >= ?");
+    params.push(scope.dueAfter);
+  }
+
+  if (scope.tags && scope.tags.length > 0) {
+    for (const tag of scope.tags) {
+      whereParts.push("n.tags LIKE ?");
+      params.push(`%${tag}%`);
+    }
+  }
+
+  if (whereParts.length === 0) {
+    return { whereClause: "", params };
+  }
+
+  return {
+    whereClause: `WHERE ${whereParts.join(" AND ")}`,
+    params
+  };
+}
+
 export async function registerReviewSessionRoutes(app: FastifyInstance): Promise<void> {
   app.post("/review-sessions/start", async (request, reply) => {
     const body = startSchema.parse(request.body ?? {});
     const nowIso = new Date().toISOString();
     const startedAt = body.startedAt ?? nowIso;
     const id = nanoid(12);
+    const scope = body.scope ?? null;
 
     createReviewSession({
       id,
@@ -53,13 +122,15 @@ export async function registerReviewSessionRoutes(app: FastifyInstance): Promise
       ended_at: null,
       reviewed_count: 0,
       correct_count: 0,
+      session_scope_json: scope ? JSON.stringify(scope) : null,
       created_at: nowIso,
       updated_at: nowIso
     });
 
     reply.code(201).send({
       sessionId: id,
-      startedAt
+      startedAt,
+      scope
     });
   });
 
@@ -71,6 +142,7 @@ export async function registerReviewSessionRoutes(app: FastifyInstance): Promise
     }
 
     const accuracy = getSessionAccuracy(session.reviewed_count, session.correct_count);
+    const scope = parseSessionScope(session.session_scope_json);
     return {
       session: {
         id: session.id,
@@ -78,7 +150,80 @@ export async function registerReviewSessionRoutes(app: FastifyInstance): Promise
         endedAt: session.ended_at,
         reviewedCount: session.reviewed_count,
         correctCount: session.correct_count,
-        accuracy
+        accuracy,
+        scope
+      }
+    };
+  });
+
+  app.get("/review-sessions/:id/queue", async (request) => {
+    const params = z.object({ id: z.string().min(1) }).parse(request.params);
+    const query = queueQuerySchema.parse(request.query ?? {});
+    const session = getReviewSessionById(params.id);
+    if (!session) {
+      throw new AppError(404, "REVIEW_SESSION_NOT_FOUND", "Review session not found");
+    }
+
+    const scope = parseSessionScope(session.session_scope_json);
+    const { whereClause, params: whereParams } = buildQueueWhere(scope);
+
+    const items = db
+      .prepare(
+        `SELECT c.id, c.note_id, c.deck_id, c.card_type, c.state, c.due_at, c.reps, c.lapses, c.created_at, c.updated_at,
+                n.front, n.back, n.tags
+         FROM cards c
+         INNER JOIN notes n ON n.id = c.note_id
+         ${whereClause}
+         ORDER BY c.due_at ASC
+         LIMIT ? OFFSET ?`
+      )
+      .all(...whereParams, query.limit, query.offset) as Array<{
+      id: string;
+      note_id: string;
+      deck_id: string;
+      card_type: string;
+      state: string;
+      due_at: string;
+      reps: number;
+      lapses: number;
+      created_at: string;
+      updated_at: string;
+      front: string;
+      back: string;
+      tags: string;
+    }>;
+
+    const total = db
+      .prepare(
+        `SELECT COUNT(*) as count
+         FROM cards c
+         INNER JOIN notes n ON n.id = c.note_id
+         ${whereClause}`
+      )
+      .get(...whereParams) as { count: number };
+
+    return {
+      sessionId: params.id,
+      scope,
+      items: items.map((card) => ({
+        id: card.id,
+        noteId: card.note_id,
+        deckId: card.deck_id,
+        cardType: card.card_type,
+        state: card.state,
+        dueAt: card.due_at,
+        reps: card.reps,
+        lapses: card.lapses,
+        front: card.front,
+        back: card.back,
+        tags: JSON.parse(card.tags) as string[],
+        createdAt: card.created_at,
+        updatedAt: card.updated_at
+      })),
+      page: {
+        limit: query.limit,
+        offset: query.offset,
+        total: total.count
       }
     };
   });

@@ -129,6 +129,26 @@ paths:
   /review-sessions/start:
     post:
       summary: Start a review session
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startedAt: { type: string, format: date-time }
+                scope:
+                  type: object
+                  properties:
+                    deckId: { type: string }
+                    tags:
+                      type: array
+                      items: { type: string }
+                    state:
+                      type: string
+                      enum: [new, learning, review, relearning, suspended]
+                    dueBefore: { type: string, format: date-time }
+                    dueAfter: { type: string, format: date-time }
       responses:
         '201':
           description: Session started
@@ -138,6 +158,8 @@ paths:
                 type: object
                 properties:
                   sessionId: { type: string }
+                  startedAt: { type: string, format: date-time }
+                  scope: { type: object, nullable: true }
 
   /review-sessions/{id}:
     get:
@@ -150,6 +172,30 @@ paths:
       responses:
         '200':
           description: Session detail
+          content:
+            application/json:
+              schema:
+                type: object
+
+  /review-sessions/{id}/queue:
+    get:
+      summary: Get scoped card queue for a review session
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: limit
+          required: false
+          schema: { type: integer, minimum: 1, maximum: 100, default: 20 }
+        - in: query
+          name: offset
+          required: false
+          schema: { type: integer, minimum: 0, default: 0 }
+      responses:
+        '200':
+          description: Scoped queue
           content:
             application/json:
               schema:

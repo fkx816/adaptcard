@@ -78,8 +78,9 @@ Target architecture (incremental):
 Goal: make adaptive review more useful and trustworthy for real daily use.
 
 #### 2.1 Filtered / custom study sessions
-- Allow starting a session scoped by `deckId`, `tags`, `state`, and due-date window
-- This is the highest-value review UX gap after M1
+- ✅ Baseline shipped: start a session scoped by `deckId`, `tags`, `state`, and due-date window
+- ✅ Added scoped queue retrieval endpoint (`GET /review-sessions/:id/queue`) for deterministic, session-specific card selection
+- Next: add queue-size summary metrics in `/review-sessions/:id` and keyboard-first frontend wiring
 
 #### 2.2 Smarter scheduling
 - Surface review load metrics per deck (due count, overdue backlog)

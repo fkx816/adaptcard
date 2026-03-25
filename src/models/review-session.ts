@@ -6,15 +6,16 @@ export type ReviewSessionRow = {
   ended_at: string | null;
   reviewed_count: number;
   correct_count: number;
+  session_scope_json: string | null;
   created_at: string;
   updated_at: string;
 };
 
 const insertStmt = db.prepare(`
   INSERT INTO review_sessions (
-    id, started_at, ended_at, reviewed_count, correct_count, created_at, updated_at
+    id, started_at, ended_at, reviewed_count, correct_count, session_scope_json, created_at, updated_at
   ) VALUES (
-    @id, @started_at, @ended_at, @reviewed_count, @correct_count, @created_at, @updated_at
+    @id, @started_at, @ended_at, @reviewed_count, @correct_count, @session_scope_json, @created_at, @updated_at
   )
 `);
 

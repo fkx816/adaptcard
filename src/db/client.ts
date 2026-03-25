@@ -61,6 +61,7 @@ export function migrate(): void {
       ended_at TEXT,
       reviewed_count INTEGER NOT NULL DEFAULT 0,
       correct_count INTEGER NOT NULL DEFAULT 0,
+      session_scope_json TEXT,
       created_at TEXT NOT NULL,
       updated_at TEXT NOT NULL
     );
@@ -117,6 +118,14 @@ export function migrate(): void {
 
   if (!reviewLogColumns.some((column) => column.name === "session_id")) {
     db.exec("ALTER TABLE review_logs ADD COLUMN session_id TEXT");
+  }
+
+  const reviewSessionColumns = db
+    .prepare("PRAGMA table_info(review_sessions)")
+    .all() as Array<{ name: string }>;
+
+  if (!reviewSessionColumns.some((column) => column.name === "session_scope_json")) {
+    db.exec("ALTER TABLE review_sessions ADD COLUMN session_scope_json TEXT");
   }
 
   db.exec(`

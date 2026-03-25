@@ -231,6 +231,19 @@ Next cycle priorities:
 - Increase OpenAPI schema strictness (typed response bodies + example payloads + error mapping).
 - Implement filtered/custom study session baseline to advance parity beyond baseline browser controls.
 
+### 2026-03-25 (Run J)
+
+Completed:
+- Implemented filtered/custom study session scope on `POST /review-sessions/start` with persisted scope fields (`deckId`, `tags`, `state`, `dueBefore`, `dueAfter`).
+- Added `GET /review-sessions/:id/queue` to retrieve a due-date-ordered queue of cards matching the session scope.
+- Added integration tests for scope persistence, queue filtering behavior, and `REVIEW_SESSION_NOT_FOUND` guardrail.
+- Improved README presentation with scoped-session examples and API matrix updates.
+
+Next cycle priorities:
+- Add rendered prompt/answer helpers for reverse/cloze cards so clients can render review sides without local template logic.
+- Increase OpenAPI schema strictness for session endpoints (response fields, scope examples, error objects).
+- Add scoped session workload metrics (due and overdue counts) for better pre-review planning.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

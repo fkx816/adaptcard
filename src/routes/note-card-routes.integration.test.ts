@@ -252,6 +252,83 @@ test("saved card browser filters can be created, listed, and applied", async () 
   });
 });
 
+test("review sessions can be scoped and queue cards by deck/tag/state/due window", async () => {
+  await withApp(async (app) => {
+    const algDeck = await app.inject({ method: "POST", url: "/decks", payload: { name: "Algorithms" } });
+    const histDeck = await app.inject({ method: "POST", url: "/decks", payload: { name: "History" } });
+    assert.equal(algDeck.statusCode, 201);
+    assert.equal(histDeck.statusCode, 201);
+
+    const algDeckId = algDeck.json().id as string;
+    const histDeckId = histDeck.json().id as string;
+
+    const target = await app.inject({
+      method: "POST",
+      url: "/notes",
+      payload: {
+        deckId: algDeckId,
+        front: "What is Dijkstra?",
+        back: "Shortest path algorithm",
+        tags: ["algorithms", "graphs"]
+      }
+    });
+    const control = await app.inject({
+      method: "POST",
+      url: "/notes",
+      payload: {
+        deckId: histDeckId,
+        front: "Who built pyramids?",
+        back: "Ancient Egyptians",
+        tags: ["history"]
+      }
+    });
+
+    assert.equal(target.statusCode, 201);
+    assert.equal(control.statusCode, 201);
+
+    const targetCardId = target.json().cardId as string;
+    const setReviewState = await app.inject({ method: "POST", url: `/cards/${targetCardId}/unsuspend` });
+    assert.equal(setReviewState.statusCode, 200);
+
+    const now = Date.now();
+    const dueAfter = new Date(now - 60_000).toISOString();
+    const dueBefore = new Date(now + 365 * 24 * 60 * 60 * 1000).toISOString();
+
+    const start = await app.inject({
+      method: "POST",
+      url: "/review-sessions/start",
+      payload: {
+        scope: {
+          deckId: algDeckId,
+          tags: ["graphs"],
+          state: "new",
+          dueAfter,
+          dueBefore
+        }
+      }
+    });
+    assert.equal(start.statusCode, 201);
+    assert.equal(start.json().scope.deckId, algDeckId);
+
+    const sessionId = start.json().sessionId as string;
+
+    const detail = await app.inject({ method: "GET", url: `/review-sessions/${sessionId}` });
+    assert.equal(detail.statusCode, 200);
+    assert.equal(detail.json().session.scope.deckId, algDeckId);
+    assert.deepEqual(detail.json().session.scope.tags, ["graphs"]);
+
+    const queue = await app.inject({ method: "GET", url: `/review-sessions/${sessionId}/queue?limit=10&offset=0` });
+    assert.equal(queue.statusCode, 200);
+    assert.equal(queue.json().items.length, 1);
+    assert.equal(queue.json().items[0].deckId, algDeckId);
+    assert.equal(queue.json().items[0].front, "What is Dijkstra?");
+
+    const missingSession = await app.inject({ method: "GET", url: "/review-sessions/missing/queue" });
+    assert.equal(missingSession.statusCode, 404);
+    assert.equal(missingSession.json().error.code, "REVIEW_SESSION_NOT_FOUND");
+  });
+});
+
 test("note templates: reverse creates mirrored cards and cloze expands deletions", async () => {
   await withApp(async (app) => {
     const deck = await app.inject({ method: "POST", url: "/decks", payload: { name: "Language" } });
