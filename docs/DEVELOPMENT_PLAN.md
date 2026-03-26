@@ -405,6 +405,38 @@ Next cycle focus:
 - Deepen OpenAPI schemas and examples for response bodies + error codes, then tighten drift checks to method-level coverage.
 - Start filtered/custom study session baseline (`state + due window + deck scope`) to advance P1 parity.
 
+### 2026-03-25 Maintenance update (Run J)
+
+Completed this cycle:
+- Implemented scoped custom study session baseline: `POST /review-sessions/start` now accepts `scope` (`deckId`, `tags`, `state`, `dueBefore`, `dueAfter`) and persists it.
+- Added scoped queue endpoint `GET /review-sessions/:id/queue` to return ordered card candidates matching the session scope.
+- Added integration coverage for scope persistence + queue filtering behavior and missing-session guardrail.
+
+Priority shifts:
+- P1 filtered/custom study control moved from plan-only to shipped baseline API behavior.
+- Next highest-value gap shifted to rendered card sides for reverse/cloze browser fidelity.
+
+Next cycle focus:
+- Add rendered prompt/answer helpers for reverse/cloze card payloads.
+- Deepen OpenAPI response schema strictness for session routes.
+- Add pre-review workload metrics to session detail.
+
+### 2026-03-26 Maintenance update (Run K)
+
+Completed this cycle:
+- Implemented scoped session workload summary on `GET /review-sessions/:id` with `queueSummary.totalCount`, `queueSummary.dueCount`, and `queueSummary.overdueCount`.
+- Added integration tests validating scoped workload metrics and deterministic due/overdue accounting.
+- Improved docs/presentation by updating OpenAPI session-detail schema and README examples for workload-aware planning.
+
+Priority shifts:
+- Filtered/custom study sessions now cover both queue retrieval and planning visibility.
+- Highest remaining parity gap is rendered prompt/answer helpers so clients avoid local template-side reconstruction.
+
+Next cycle focus:
+- Add rendered prompt/answer helpers for reverse/cloze in card/session responses.
+- Tighten OpenAPI schema depth for queue and undo responses with concrete examples.
+- Start frontend keyboard-first wiring for scoped session launch + queue summary display.
+
 ## 10. Strategic Expansion Tracks
 
 ### Track A — Learner Experience

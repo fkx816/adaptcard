@@ -176,6 +176,23 @@ paths:
             application/json:
               schema:
                 type: object
+                properties:
+                  session:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      startedAt: { type: string, format: date-time }
+                      endedAt: { type: string, format: date-time, nullable: true }
+                      reviewedCount: { type: integer }
+                      correctCount: { type: integer }
+                      accuracy: { type: number }
+                      scope: { type: object, nullable: true }
+                      queueSummary:
+                        type: object
+                        properties:
+                          totalCount: { type: integer }
+                          dueCount: { type: integer }
+                          overdueCount: { type: integer }
 
   /review-sessions/{id}/queue:
     get:

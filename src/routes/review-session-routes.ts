@@ -108,6 +108,35 @@ function buildQueueWhere(scope: z.infer<typeof sessionScopeSchema> | null): { wh
   };
 }
 
+function getSessionWorkloadSummary(scope: z.infer<typeof sessionScopeSchema> | null): {
+  totalCount: number;
+  dueCount: number;
+  overdueCount: number;
+} {
+  const { whereClause, params: whereParams } = buildQueueWhere(scope);
+  const nowIso = new Date().toISOString();
+
+  const row = db
+    .prepare(
+      `SELECT
+          COUNT(*) as totalCount,
+          SUM(CASE WHEN c.due_at <= ? THEN 1 ELSE 0 END) as dueCount,
+          SUM(CASE WHEN c.due_at < ? THEN 1 ELSE 0 END) as overdueCount
+       FROM cards c
+       INNER JOIN notes n ON n.id = c.note_id
+       ${whereClause}`
+    )
+    .get(nowIso, nowIso, ...whereParams);
+
+  const typedRow = row as { totalCount: number; dueCount: number | null; overdueCount: number | null };
+  return {
+    totalCount: typedRow.totalCount,
+    dueCount: typedRow.dueCount ?? 0,
+    overdueCount: typedRow.overdueCount ?? 0
+  };
+}
+
+
 export async function registerReviewSessionRoutes(app: FastifyInstance): Promise<void> {
   app.post("/review-sessions/start", async (request, reply) => {
     const body = startSchema.parse(request.body ?? {});
@@ -143,6 +172,7 @@ export async function registerReviewSessionRoutes(app: FastifyInstance): Promise
 
     const accuracy = getSessionAccuracy(session.reviewed_count, session.correct_count);
     const scope = parseSessionScope(session.session_scope_json);
+    const workload = getSessionWorkloadSummary(scope);
     return {
       session: {
         id: session.id,
@@ -151,7 +181,12 @@ export async function registerReviewSessionRoutes(app: FastifyInstance): Promise
         reviewedCount: session.reviewed_count,
         correctCount: session.correct_count,
         accuracy,
-        scope
+        scope,
+        queueSummary: {
+          totalCount: workload.totalCount,
+          dueCount: workload.dueCount,
+          overdueCount: workload.overdueCount
+        }
       }
     };
   });

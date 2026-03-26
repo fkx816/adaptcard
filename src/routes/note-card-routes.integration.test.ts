@@ -287,10 +287,15 @@ test("review sessions can be scoped and queue cards by deck/tag/state/due window
     assert.equal(control.statusCode, 201);
 
     const targetCardId = target.json().cardId as string;
+    const controlCardId = control.json().cardId as string;
     const setReviewState = await app.inject({ method: "POST", url: `/cards/${targetCardId}/unsuspend` });
     assert.equal(setReviewState.statusCode, 200);
 
     const now = Date.now();
+    const overdueIso = new Date(now - 30_000).toISOString();
+    const futureIso = new Date(now + 2 * 60_000).toISOString();
+    db.prepare("UPDATE cards SET due_at = ?, state = 'new' WHERE id = ?").run(overdueIso, targetCardId);
+    db.prepare("UPDATE cards SET due_at = ?, state = 'new' WHERE id = ?").run(futureIso, controlCardId);
     const dueAfter = new Date(now - 60_000).toISOString();
     const dueBefore = new Date(now + 365 * 24 * 60 * 60 * 1000).toISOString();
 
@@ -316,6 +321,9 @@ test("review sessions can be scoped and queue cards by deck/tag/state/due window
     assert.equal(detail.statusCode, 200);
     assert.equal(detail.json().session.scope.deckId, algDeckId);
     assert.deepEqual(detail.json().session.scope.tags, ["graphs"]);
+    assert.equal(detail.json().session.queueSummary.totalCount, 1);
+    assert.equal(detail.json().session.queueSummary.dueCount, 1);
+    assert.equal(detail.json().session.queueSummary.overdueCount, 1);
 
     const queue = await app.inject({ method: "GET", url: `/review-sessions/${sessionId}/queue?limit=10&offset=0` });
     assert.equal(queue.statusCode, 200);

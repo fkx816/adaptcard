@@ -150,3 +150,10 @@ M4: Plugin API alpha and public extension docs
 - Added scoped queue endpoint `GET /review-sessions/:id/queue` to return ordered card candidates matching the session scope.
 - Added integration coverage for scope persistence + queue filtering behavior and missing-session guardrail.
 - P1 filtered/custom study control has moved from plan-only to working API baseline; next parity gap is rendered prompt/answer helpers for reverse/cloze card display.
+
+## 2026-03-26 progress note (Run K)
+
+- Added scoped workload metrics to `GET /review-sessions/:id` via `queueSummary` (`totalCount`, `dueCount`, `overdueCount`) so users can estimate queue pressure before review.
+- Added integration coverage for workload summary correctness under scoped filters and due-window behavior.
+- Updated OpenAPI and README docs to expose workload-aware session inspection.
+- P1 custom study is now stronger on planning visibility; next parity gap remains rendered prompt/answer helpers for reverse/cloze card display.

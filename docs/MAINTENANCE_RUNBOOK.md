@@ -244,6 +244,18 @@ Next cycle priorities:
 - Increase OpenAPI schema strictness for session endpoints (response fields, scope examples, error objects).
 - Add scoped session workload metrics (due and overdue counts) for better pre-review planning.
 
+### 2026-03-26 (Run K)
+
+Completed:
+- Implemented scoped workload summary in `GET /review-sessions/:id` via `queueSummary.totalCount`, `queueSummary.dueCount`, and `queueSummary.overdueCount`.
+- Added integration tests to verify scoped workload metrics against deterministic due/overdue fixtures.
+- Updated OpenAPI and README documentation to improve operator-facing planning clarity before starting review loops.
+
+Next cycle priorities:
+- Add rendered prompt/answer helpers for reverse/cloze cards to remove frontend-side template reconstruction.
+- Deepen OpenAPI response schemas for queue and undo endpoints with concrete payload examples.
+- Begin frontend keyboard-first workflow wiring for scoped session launch + queue summary visibility.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

@@ -48,7 +48,7 @@ It is **domain-agnostic** by design. Use the same engine to build study workflow
 - 🧠 **Spaced repetition scheduling** — evidence-based algorithm that optimizes review intervals per item
 - ✨ **AI quiz generation** — fresh questions per session via OpenAI, Ollama, or a deterministic mock
 - 🔁 **Full review session lifecycle** — start → progress → undo → finish with atomic state tracking
-- 🎯 **Filtered custom study sessions** — start scoped sessions by deck, tags, state, and due-date window
+- 🎯 **Filtered custom study sessions** — start scoped sessions by deck, tags, state, and due-date window, with due/overdue workload summary on session detail
 - 🗂 **Deck hierarchy** — nested decks with guardrails (no orphan deletes, clean tree management)
 - 🃏 **Card browser** — query, filter, suspend, bulk retag, bulk move, and save query presets
 - 📝 **Note + card templates** — `basic`, `reverse`, and `cloze` card types
@@ -114,7 +114,7 @@ Manage your environment through variables:
 | Next due item | `GET` | `/reviews/next` | ✅ |
 | Quiz generate | `POST` | `/quiz/generate` | ✅ |
 | Quiz submit | `POST` | `/quiz/submit` | ✅ |
-| Review sessions | `POST` / `GET` | `/review-sessions/start`, `/review-sessions/:id` | ✅ |
+| Review sessions + workload summary | `POST` / `GET` | `/review-sessions/start`, `/review-sessions/:id` | ✅ |
 | Session scoped queue | `GET` | `/review-sessions/:id/queue` | ✅ |
 | Session finish | `POST` | `/review-sessions/:id/finish` | ✅ |
 | Undo last review | `POST` | `/review-sessions/:id/undo-last-review` | ✅ |
@@ -178,6 +178,14 @@ curl -X POST http://127.0.0.1:8787/review-sessions/start \
   }'
 
 curl 'http://127.0.0.1:8787/review-sessions/<session-id>/queue?limit=20&offset=0'
+
+# Session detail now includes queueSummary:
+# {
+#   "session": {
+#     "queueSummary": { "totalCount": 42, "dueCount": 18, "overdueCount": 6 }
+#   }
+# }
+curl 'http://127.0.0.1:8787/review-sessions/<session-id>'
 ```
 
 ### 4️⃣ Generate a quiz
