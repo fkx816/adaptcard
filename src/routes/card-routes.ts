@@ -18,6 +18,7 @@ import {
 } from "../models/card-filter.js";
 import { getDeckById } from "../models/deck.js";
 import { bulkMoveNotesToDeck, getNotesByIds, updateNoteTags } from "../models/note.js";
+import { renderCardSides } from "../services/card-renderer.js";
 
 const listCardsQuerySchema = z.object({
   search: z.string().min(1).optional(),
@@ -110,6 +111,7 @@ export async function registerCardRoutes(app: FastifyInstance): Promise<void> {
         lapses: card.lapses,
         front: card.front,
         back: card.back,
+        rendered: renderCardSides(card.card_type, card.front, card.back),
         tags: JSON.parse(card.tags) as string[],
         createdAt: card.created_at,
         updatedAt: card.updated_at
@@ -187,6 +189,7 @@ export async function registerCardRoutes(app: FastifyInstance): Promise<void> {
         lapses: card.lapses,
         front: card.front,
         back: card.back,
+        rendered: renderCardSides(card.card_type, card.front, card.back),
         tags: JSON.parse(card.tags) as string[],
         createdAt: card.created_at,
         updatedAt: card.updated_at

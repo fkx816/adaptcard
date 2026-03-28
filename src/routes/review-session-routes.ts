@@ -12,6 +12,7 @@ import {
 } from "../models/review-session.js";
 import { getSessionAccuracy } from "../services/review-session-metrics.js";
 import { updateKnowledgePointReview } from "../models/knowledge-point.js";
+import { renderCardSides } from "../services/card-renderer.js";
 
 const sessionScopeSchema = z.object({
   deckId: z.string().min(1).optional(),
@@ -251,6 +252,7 @@ export async function registerReviewSessionRoutes(app: FastifyInstance): Promise
         lapses: card.lapses,
         front: card.front,
         back: card.back,
+        rendered: renderCardSides(card.card_type, card.front, card.back),
         tags: JSON.parse(card.tags) as string[],
         createdAt: card.created_at,
         updatedAt: card.updated_at

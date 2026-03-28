@@ -437,6 +437,22 @@ Next cycle focus:
 - Tighten OpenAPI schema depth for queue and undo responses with concrete examples.
 - Start frontend keyboard-first wiring for scoped session launch + queue summary display.
 
+### 2026-03-28 Maintenance update (Run L)
+
+Completed this cycle:
+- Implemented template-aware card rendering helpers and exposed `rendered.prompt` + `rendered.answer` on both card browser (`GET /cards`) and review queue (`GET /review-sessions/:id/queue`) responses.
+- Added renderer unit coverage plus integration assertions for reverse and cloze rendering behavior (target cloze hidden in prompt, revealed in answer).
+- Improved docs/presentation quality by updating README with rendered-side usage examples and expanding OpenAPI queue/card schemas (`RenderedCardSides`, queue response reference).
+
+Priority shifts:
+- The top filtered-session parity gap (frontend-side template reconstruction) is now closed at API level.
+- Next risk shifts to keyboard-first review execution and richer session endpoint contract examples (especially undo payload semantics).
+
+Next cycle focus:
+- Implement keyboard-first frontend wiring for scoped session launch and in-session queue navigation.
+- Add concrete OpenAPI examples for undo/session queue payloads and error envelopes.
+- Start detailed review-history timeline endpoint(s) per card/note to advance P1 inspectability.
+
 ## 10. Strategic Expansion Tracks
 
 ### Track A — Learner Experience

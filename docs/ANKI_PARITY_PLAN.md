@@ -157,3 +157,10 @@ M4: Plugin API alpha and public extension docs
 - Added integration coverage for workload summary correctness under scoped filters and due-window behavior.
 - Updated OpenAPI and README docs to expose workload-aware session inspection.
 - P1 custom study is now stronger on planning visibility; next parity gap remains rendered prompt/answer helpers for reverse/cloze card display.
+
+## 2026-03-28 progress note (Run L)
+
+- Added API-level rendered side helpers for template cards: card browser and scoped review queue now return `rendered.prompt` + `rendered.answer` for `basic`, `reverse`, and `cloze:N` cards.
+- Added test coverage for reverse/cloze rendering behavior to guard against frontend fidelity regressions.
+- Updated README/OpenAPI to document rendered-side contract, reducing client-side template logic burden.
+- P1 custom study now has stronger display fidelity; next parity acceleration should target keyboard-first review controls and review-history timeline depth.

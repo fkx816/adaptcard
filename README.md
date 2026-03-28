@@ -50,7 +50,7 @@ It is **domain-agnostic** by design. Use the same engine to build study workflow
 - 🔁 **Full review session lifecycle** — start → progress → undo → finish with atomic state tracking
 - 🎯 **Filtered custom study sessions** — start scoped sessions by deck, tags, state, and due-date window, with due/overdue workload summary on session detail
 - 🗂 **Deck hierarchy** — nested decks with guardrails (no orphan deletes, clean tree management)
-- 🃏 **Card browser** — query, filter, suspend, bulk retag, bulk move, and save query presets
+- 🃏 **Card browser + rendered sides** — query/filter cards and receive `rendered.prompt` + `rendered.answer` for `basic`, `reverse`, and `cloze:N` cards (no frontend template reconstruction required)
 - 📝 **Note + card templates** — `basic`, `reverse`, and `cloze` card types
 - 🔒 **Local-model support** — full Ollama integration for privacy-sensitive or air-gapped setups
 - 📄 **OpenAPI spec** — machine-readable contract at [`docs/openapi.yaml`](docs/openapi.yaml)
@@ -247,6 +247,20 @@ curl 'http://127.0.0.1:8787/cards?search=shortest&state=new&sortBy=dueAt&sortOrd
 # Suspend / unsuspend
 curl -X POST http://127.0.0.1:8787/cards/<card-id>/suspend
 curl -X POST http://127.0.0.1:8787/cards/<card-id>/unsuspend
+```
+
+Every card response now includes a `rendered` payload so web/mobile clients can display review sides directly:
+
+```json
+{
+  "cardType": "cloze:2",
+  "front": "TCP uses {{c1::three-way handshake}}",
+  "back": "Flow: {{c1::SYN}}, {{c2::SYN-ACK}}, {{c3::ACK}}",
+  "rendered": {
+    "prompt": "TCP uses three-way handshake\n\nFlow: SYN, [...], ACK",
+    "answer": "TCP uses three-way handshake\n\nFlow: SYN, SYN-ACK, ACK"
+  }
+}
 ```
 </details>
 

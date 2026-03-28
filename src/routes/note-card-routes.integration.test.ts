@@ -330,6 +330,8 @@ test("review sessions can be scoped and queue cards by deck/tag/state/due window
     assert.equal(queue.json().items.length, 1);
     assert.equal(queue.json().items[0].deckId, algDeckId);
     assert.equal(queue.json().items[0].front, "What is Dijkstra?");
+    assert.equal(queue.json().items[0].rendered.prompt, "What is Dijkstra?");
+    assert.equal(queue.json().items[0].rendered.answer, "Shortest path algorithm");
 
     const missingSession = await app.inject({ method: "GET", url: "/review-sessions/missing/queue" });
     assert.equal(missingSession.statusCode, 404);
@@ -359,8 +361,14 @@ test("note templates: reverse creates mirrored cards and cloze expands deletions
 
     const reverseCards = await app.inject({ method: "GET", url: "/cards?search=bonjour&sortBy=updatedAt&sortOrder=desc" });
     assert.equal(reverseCards.statusCode, 200);
-    const reverseTypes = (reverseCards.json().items as Array<{ cardType: string }>).map((card) => card.cardType).sort();
+    const reverseItems = reverseCards.json().items as Array<{ cardType: string; rendered: { prompt: string; answer: string } }>;
+    const reverseTypes = reverseItems.map((card) => card.cardType).sort();
     assert.deepEqual(reverseTypes, ["basic", "reverse"]);
+
+    const reverseRendered = reverseItems.find((card) => card.cardType === "reverse");
+    assert.ok(reverseRendered);
+    assert.equal(reverseRendered.rendered.prompt, "hello");
+    assert.equal(reverseRendered.rendered.answer, "bonjour");
 
     const cloze = await app.inject({
       method: "POST",
@@ -378,8 +386,15 @@ test("note templates: reverse creates mirrored cards and cloze expands deletions
 
     const clozeCards = await app.inject({ method: "GET", url: "/cards?search=three-way&sortBy=updatedAt&sortOrder=desc" });
     assert.equal(clozeCards.statusCode, 200);
-    const clozeTypes = (clozeCards.json().items as Array<{ cardType: string }>).map((card) => card.cardType).sort();
+    const clozeItems = clozeCards.json().items as Array<{ cardType: string; rendered: { prompt: string; answer: string } }>;
+    const clozeTypes = clozeItems.map((card) => card.cardType).sort();
     assert.deepEqual(clozeTypes, ["cloze:1", "cloze:2", "cloze:3"]);
+
+    const cloze2 = clozeItems.find((card) => card.cardType === "cloze:2");
+    assert.ok(cloze2);
+    assert.match(cloze2.rendered.prompt, /\[\.\.\.\]/);
+    assert.ok(!cloze2.rendered.prompt.includes("SYN-ACK"));
+    assert.match(cloze2.rendered.answer, /SYN-ACK/);
 
     const invalidCloze = await app.inject({
       method: "POST",

@@ -256,6 +256,18 @@ Next cycle priorities:
 - Deepen OpenAPI response schemas for queue and undo endpoints with concrete payload examples.
 - Begin frontend keyboard-first workflow wiring for scoped session launch + queue summary visibility.
 
+### 2026-03-28 (Run L)
+
+Completed:
+- Implemented `rendered.prompt` / `rendered.answer` output for card browser and scoped session queue responses using template-aware rendering logic (`basic`, `reverse`, `cloze:N`).
+- Added renderer unit tests and integration checks for reverse/cloze rendering semantics.
+- Upgraded docs/presentation with README rendered-side payload examples and expanded OpenAPI component schemas for rendered card responses.
+
+Next cycle priorities:
+- Add keyboard-first frontend flow wiring for scoped session launch and queue navigation.
+- Expand OpenAPI response examples for queue and undo endpoints, including error payload examples.
+- Implement per-card/per-note review history timeline APIs to advance parity inspectability.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:
