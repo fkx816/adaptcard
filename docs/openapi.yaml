@@ -64,6 +64,28 @@ paths:
               schema:
                 type: object
 
+  /knowledge-points/{id}/review-history:
+    get:
+      summary: List review history timeline for one knowledge point
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+      responses:
+        '200':
+          description: Review history page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgePointReviewHistoryResponse'
+
   /reviews/next:
     get:
       summary: Get next due knowledge point
@@ -571,6 +593,49 @@ paths:
 
 components:
   schemas:
+    KnowledgePointReviewHistoryItem:
+      type: object
+      properties:
+        id: { type: string }
+        sessionId:
+          type: string
+          nullable: true
+        cardId:
+          type: string
+          nullable: true
+        reviewedAt: { type: string, format: date-time }
+        rating: { type: integer }
+        correctRate: { type: number }
+        stats:
+          type: object
+          properties:
+            total:
+              type: integer
+              nullable: true
+            correct:
+              type: integer
+              nullable: true
+        answers:
+          type: array
+          items:
+            type: object
+            properties:
+              questionId: { type: string }
+              userAnswer: { type: string }
+    KnowledgePointReviewHistoryResponse:
+      type: object
+      properties:
+        knowledgePointId: { type: string }
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgePointReviewHistoryItem'
+        page:
+          type: object
+          properties:
+            limit: { type: integer }
+            offset: { type: integer }
+            total: { type: integer }
     CardStateResponse:
       type: object
       properties:

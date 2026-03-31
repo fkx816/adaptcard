@@ -33,3 +33,29 @@ export function deleteReviewLogById(id: string): number {
   const result = db.prepare("DELETE FROM review_logs WHERE id = ?").run(id);
   return result.changes;
 }
+
+export function listReviewLogsByKnowledgePoint(
+  knowledgePointId: string,
+  limit: number,
+  offset: number
+): { items: ReviewLogRow[]; total: number } {
+  const items = db
+    .prepare(
+      `SELECT *
+       FROM review_logs
+       WHERE knowledge_point_id = ?
+       ORDER BY reviewed_at DESC, rowid DESC
+       LIMIT ? OFFSET ?`
+    )
+    .all(knowledgePointId, limit, offset) as ReviewLogRow[];
+
+  const total = db
+    .prepare(
+      `SELECT COUNT(*) as count
+       FROM review_logs
+       WHERE knowledge_point_id = ?`
+    )
+    .get(knowledgePointId) as { count: number };
+
+  return { items, total: total.count };
+}

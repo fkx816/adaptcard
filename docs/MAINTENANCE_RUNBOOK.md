@@ -268,6 +268,18 @@ Next cycle priorities:
 - Expand OpenAPI response examples for queue and undo endpoints, including error payload examples.
 - Implement per-card/per-note review history timeline APIs to advance parity inspectability.
 
+### 2026-03-31 (Run M)
+
+Completed:
+- Added knowledge-point review timeline endpoint `GET /knowledge-points/:id/review-history` with paginated history items.
+- Added integration tests for timeline pagination and missing-entity errors (`KNOWLEDGE_POINT_NOT_FOUND`).
+- Improved presentation quality in README/OpenAPI with timeline usage and schema docs.
+
+Next cycle priorities:
+- Build keyboard-first review controls for scoped session launch and queue traversal.
+- Add concrete OpenAPI examples for undo/session queue success + error payloads.
+- Extend timeline inspectability from knowledge-point level toward note/card level parity.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

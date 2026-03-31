@@ -1,7 +1,9 @@
 import { nanoid } from "nanoid";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
-import { createKnowledgePoint, listKnowledgePoints, getNextDueKnowledgePoint } from "../models/knowledge-point.js";
+import { createKnowledgePoint, listKnowledgePoints, getNextDueKnowledgePoint, getKnowledgePointById } from "../models/knowledge-point.js";
+import { listReviewLogsByKnowledgePoint } from "../models/review-log.js";
+import { AppError } from "../errors.js";
 import { initCard } from "../services/fsrs-service.js";
 
 const createSchema = z.object({
@@ -9,6 +11,15 @@ const createSchema = z.object({
   back: z.string().min(1),
   context: z.string().optional(),
   tags: z.array(z.string()).default([])
+});
+
+const knowledgePointIdParamSchema = z.object({
+  id: z.string().min(1)
+});
+
+const reviewHistoryQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  offset: z.coerce.number().int().min(0).default(0)
 });
 
 export async function registerKnowledgePointRoutes(app: FastifyInstance): Promise<void> {
@@ -47,6 +58,47 @@ export async function registerKnowledgePointRoutes(app: FastifyInstance): Promis
         ...row,
         tags: JSON.parse(row.tags)
       }))
+    };
+  });
+
+  app.get("/knowledge-points/:id/review-history", async (request) => {
+    const params = knowledgePointIdParamSchema.parse(request.params ?? {});
+    const query = reviewHistoryQuerySchema.parse(request.query ?? {});
+
+    const knowledgePoint = getKnowledgePointById(params.id);
+    if (!knowledgePoint) {
+      throw new AppError(404, "KNOWLEDGE_POINT_NOT_FOUND", "Knowledge point not found");
+    }
+
+    const result = listReviewLogsByKnowledgePoint(params.id, query.limit, query.offset);
+
+    return {
+      knowledgePointId: params.id,
+      items: result.items.map((row) => {
+        const detail = JSON.parse(row.detail) as {
+          answers?: Array<{ questionId: string; userAnswer: string }>;
+          stats?: { total?: number; correct?: number };
+        };
+
+        return {
+          id: row.id,
+          sessionId: row.session_id,
+          cardId: row.card_id,
+          reviewedAt: row.reviewed_at,
+          rating: row.rating,
+          correctRate: row.correct_rate,
+          stats: {
+            total: detail.stats?.total ?? null,
+            correct: detail.stats?.correct ?? null
+          },
+          answers: detail.answers ?? []
+        };
+      }),
+      page: {
+        limit: query.limit,
+        offset: query.offset,
+        total: result.total
+      }
     };
   });
 

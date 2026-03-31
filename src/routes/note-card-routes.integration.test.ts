@@ -474,3 +474,80 @@ test("session-level undo last review restores progress and FSRS state", async ()
     assert.equal(after.state, before.state);
   });
 });
+
+test("knowledge point review history timeline is queryable", async () => {
+  await withApp(async (app) => {
+    const createKp = await app.inject({
+      method: "POST",
+      url: "/knowledge-points",
+      payload: {
+        front: "What is memoization?",
+        back: "Caching function results to avoid repeated computation"
+      }
+    });
+    assert.equal(createKp.statusCode, 201);
+    const knowledgePointId = createKp.json().id as string;
+
+    const firstCard = await app.inject({
+      method: "POST",
+      url: "/quiz/generate",
+      payload: { knowledgePointId, count: 2 }
+    });
+    assert.equal(firstCard.statusCode, 201);
+
+    const firstSubmit = await app.inject({
+      method: "POST",
+      url: "/quiz/submit",
+      payload: {
+        cardId: firstCard.json().cardId,
+        answers: firstCard.json().questions.map((question: { id: string; answer: string }) => ({
+          questionId: question.id,
+          userAnswer: question.answer
+        }))
+      }
+    });
+    assert.equal(firstSubmit.statusCode, 200);
+
+    const secondCard = await app.inject({
+      method: "POST",
+      url: "/quiz/generate",
+      payload: { knowledgePointId, count: 1 }
+    });
+    assert.equal(secondCard.statusCode, 201);
+
+    const secondSubmit = await app.inject({
+      method: "POST",
+      url: "/quiz/submit",
+      payload: {
+        cardId: secondCard.json().cardId,
+        answers: secondCard.json().questions.map((question: { id: string; answer: string }) => ({
+          questionId: question.id,
+          userAnswer: question.answer
+        }))
+      }
+    });
+    assert.equal(secondSubmit.statusCode, 200);
+
+    const history = await app.inject({
+      method: "GET",
+      url: `/knowledge-points/${knowledgePointId}/review-history?limit=1&offset=0`
+    });
+    assert.equal(history.statusCode, 200);
+    assert.equal(history.json().knowledgePointId, knowledgePointId);
+    assert.equal(history.json().items.length, 1);
+    assert.equal(history.json().page.total, 2);
+    assert.ok(typeof history.json().items[0].correctRate === "number");
+    assert.ok(Array.isArray(history.json().items[0].answers));
+
+    const nextPage = await app.inject({
+      method: "GET",
+      url: `/knowledge-points/${knowledgePointId}/review-history?limit=1&offset=1`
+    });
+    assert.equal(nextPage.statusCode, 200);
+    assert.equal(nextPage.json().items.length, 1);
+
+    const missing = await app.inject({ method: "GET", url: "/knowledge-points/missing/review-history" });
+    assert.equal(missing.statusCode, 404);
+    assert.equal(missing.json().error.code, "KNOWLEDGE_POINT_NOT_FOUND");
+  });
+});

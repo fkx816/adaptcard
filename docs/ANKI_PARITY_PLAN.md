@@ -164,3 +164,10 @@ M4: Plugin API alpha and public extension docs
 - Added test coverage for reverse/cloze rendering behavior to guard against frontend fidelity regressions.
 - Updated README/OpenAPI to document rendered-side contract, reducing client-side template logic burden.
 - P1 custom study now has stronger display fidelity; next parity acceleration should target keyboard-first review controls and review-history timeline depth.
+
+## 2026-03-31 progress note (Run M)
+
+- Added `GET /knowledge-points/:id/review-history` with paginated timeline items (`rating`, `correctRate`, answer payload snapshot, and attempt stats).
+- Added integration coverage for timeline pagination and missing knowledge-point guardrail semantics.
+- Expanded README/OpenAPI documentation so timeline inspectability is now contract-visible and frontend-ready.
+- P1 inspectability moved forward at API level; next parity step is card/note-level timeline views plus keyboard-first review UX wiring.

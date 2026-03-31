@@ -453,6 +453,22 @@ Next cycle focus:
 - Add concrete OpenAPI examples for undo/session queue payloads and error envelopes.
 - Start detailed review-history timeline endpoint(s) per card/note to advance P1 inspectability.
 
+### 2026-03-31 Maintenance update (Run M)
+
+Completed this cycle:
+- Implemented knowledge-point review history timeline API: `GET /knowledge-points/:id/review-history` with pagination and structured per-attempt stats (`rating`, `correctRate`, `stats`, `answers`).
+- Added integration coverage for timeline pagination and missing-knowledge-point guardrail behavior.
+- Improved docs/presentation quality by refreshing README workflow examples and extending OpenAPI with concrete timeline schemas.
+
+Priority shifts:
+- Phase-2 mastery inspectability moved from implicit logs to an explicit API surface, lowering risk for upcoming analytics/dashboard wiring.
+- Next delivery risk is still keyboard-first review flow and frontend execution speed, not backend traceability.
+
+Next cycle focus:
+- Implement keyboard-first frontend controls for scoped session launch and queue navigation.
+- Add richer OpenAPI examples for undo/session error payloads and response bodies.
+- Begin note/card-level review timeline derivations to complete P1 inspectability parity.
+
 ## 10. Strategic Expansion Tracks
 
 ### Track A — Learner Experience

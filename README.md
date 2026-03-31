@@ -111,6 +111,7 @@ Manage your environment through variables:
 |---|---|---|:---:|
 | Health | `GET` | `/health` | ✅ |
 | Knowledge points | `POST` / `GET` | `/knowledge-points` | ✅ |
+| Knowledge point review history timeline | `GET` | `/knowledge-points/:id/review-history` | ✅ |
 | Next due item | `GET` | `/reviews/next` | ✅ |
 | Quiz generate | `POST` | `/quiz/generate` | ✅ |
 | Quiz submit | `POST` | `/quiz/submit` | ✅ |
@@ -155,7 +156,20 @@ curl -X POST http://127.0.0.1:8787/knowledge-points \
   }'
 ```
 
-### 2️⃣ Start a review session
+### 2️⃣ Inspect review history timeline for a knowledge point
+
+```bash
+curl 'http://127.0.0.1:8787/knowledge-points/<knowledge-point-id>/review-history?limit=10&offset=0'
+
+# Response includes rating/correctRate trend + per-attempt answer stats:
+# {
+#   "knowledgePointId": "<id>",
+#   "items": [{ "reviewedAt": "...", "rating": 4, "correctRate": 1, "stats": { "total": 3, "correct": 3 } }],
+#   "page": { "limit": 10, "offset": 0, "total": 24 }
+# }
+```
+
+### 3️⃣ Start a review session
 
 ```bash
 curl -X POST http://127.0.0.1:8787/review-sessions/start \
@@ -163,7 +177,7 @@ curl -X POST http://127.0.0.1:8787/review-sessions/start \
   -d '{}'
 ```
 
-### 3️⃣ Start a filtered custom study session
+### 4️⃣ Start a filtered custom study session
 
 ```bash
 curl -X POST http://127.0.0.1:8787/review-sessions/start \
@@ -188,7 +202,7 @@ curl 'http://127.0.0.1:8787/review-sessions/<session-id>/queue?limit=20&offset=0
 curl 'http://127.0.0.1:8787/review-sessions/<session-id>'
 ```
 
-### 4️⃣ Generate a quiz
+### 5️⃣ Generate a quiz
 
 ```bash
 curl -X POST http://127.0.0.1:8787/quiz/generate \
