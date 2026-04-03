@@ -49,3 +49,60 @@ export function countDeckChildren(parentId: string): number {
   const row = db.prepare("SELECT COUNT(1) as count FROM decks WHERE parent_id = ?").get(parentId) as { count: number };
   return row.count;
 }
+
+export function getDeckWorkload(deckId: string, asOfIso: string): {
+  totalCount: number;
+  dueCount: number;
+  overdueCount: number;
+  stateBreakdown: Record<string, number>;
+} {
+  const summary = db
+    .prepare(
+      `WITH RECURSIVE subtree(id) AS (
+         SELECT id FROM decks WHERE id = ?
+         UNION ALL
+         SELECT d.id
+         FROM decks d
+         INNER JOIN subtree s ON d.parent_id = s.id
+       )
+       SELECT
+         COUNT(*) as totalCount,
+         SUM(CASE WHEN c.due_at <= ? THEN 1 ELSE 0 END) as dueCount,
+         SUM(CASE WHEN c.due_at < ? THEN 1 ELSE 0 END) as overdueCount
+       FROM cards c
+       INNER JOIN subtree s ON c.deck_id = s.id`
+    )
+    .get(deckId, asOfIso, asOfIso) as {
+    totalCount: number;
+    dueCount: number | null;
+    overdueCount: number | null;
+  };
+
+  const stateRows = db
+    .prepare(
+      `WITH RECURSIVE subtree(id) AS (
+         SELECT id FROM decks WHERE id = ?
+         UNION ALL
+         SELECT d.id
+         FROM decks d
+         INNER JOIN subtree s ON d.parent_id = s.id
+       )
+       SELECT c.state as state, COUNT(*) as count
+       FROM cards c
+       INNER JOIN subtree s ON c.deck_id = s.id
+       GROUP BY c.state`
+    )
+    .all(deckId) as Array<{ state: string; count: number }>;
+
+  const stateBreakdown = stateRows.reduce<Record<string, number>>((acc, row) => {
+    acc[row.state] = row.count;
+    return acc;
+  }, {});
+
+  return {
+    totalCount: summary.totalCount,
+    dueCount: summary.dueCount ?? 0,
+    overdueCount: summary.overdueCount ?? 0,
+    stateBreakdown
+  };
+}

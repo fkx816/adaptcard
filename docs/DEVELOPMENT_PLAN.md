@@ -469,6 +469,22 @@ Next cycle focus:
 - Add richer OpenAPI examples for undo/session error payloads and response bodies.
 - Begin note/card-level review timeline derivations to complete P1 inspectability parity.
 
+### 2026-04-03 Maintenance update (Run N)
+
+Completed this cycle:
+- Implemented recursive deck workload analytics on `GET /decks/:id` via `workload` (`totalCount`, `dueCount`, `overdueCount`, `stateBreakdown`) aggregated across the selected deck and all descendants.
+- Added integration coverage validating subtree workload rollups and state-bucket correctness (`new`/`review`/`suspended`) under mixed due timing.
+- Improved docs/presentation quality by adding README operator examples for deck workload inspection and extending OpenAPI with deck response schemas + workload examples.
+
+Priority shifts:
+- Phase-2 “review load metrics per deck” moved from planned to shipped baseline, reducing operational guesswork before launching scoped study sessions.
+- Highest short-term product risk is now frontend execution quality (keyboard-first review loop) and timeline parity at card/note level rather than deck-level planning visibility.
+
+Next cycle focus:
+- Implement card/note-level review timeline endpoint(s) to complete inspectability parity beyond knowledge-point scope.
+- Add keyboard-first frontend controls for scoped-session launch, queue traversal, and submit/undo shortcuts.
+- Tighten OpenAPI response examples for undo/queue/session error envelopes and add stricter contract checks where feasible.
+
 ## 10. Strategic Expansion Tracks
 
 ### Track A — Learner Experience

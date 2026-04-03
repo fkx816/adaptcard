@@ -280,6 +280,18 @@ Next cycle priorities:
 - Add concrete OpenAPI examples for undo/session queue success + error payloads.
 - Extend timeline inspectability from knowledge-point level toward note/card level parity.
 
+### 2026-04-03 (Run N)
+
+Completed:
+- Added recursive workload analytics in deck detail (`GET /decks/:id`) to surface subtree `totalCount`, `dueCount`, `overdueCount`, and `stateBreakdown`.
+- Added integration tests for deck workload rollups across parent/child decks with mixed due-state fixtures.
+- Refined docs quality by adding README operator examples and OpenAPI deck/workload response schemas.
+
+Next cycle priorities:
+- Implement card/note-level review-history endpoints to complete inspectability parity.
+- Add keyboard-first review controls (start scoped session, next card, submit, undo) in frontend flow.
+- Expand OpenAPI examples for undo/session errors and enforce stricter response-shape checks.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

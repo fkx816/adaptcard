@@ -2,7 +2,15 @@ import { nanoid } from "nanoid";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { AppError } from "../errors.js";
-import { countDeckChildren, createDeck, deleteDeck, getDeckById, listDecks, updateDeck } from "../models/deck.js";
+import {
+  countDeckChildren,
+  createDeck,
+  deleteDeck,
+  getDeckById,
+  getDeckWorkload,
+  listDecks,
+  updateDeck
+} from "../models/deck.js";
 
 const createDeckSchema = z.object({
   name: z.string().min(1),
@@ -57,6 +65,8 @@ export async function registerDeckRoutes(app: FastifyInstance): Promise<void> {
       throw new AppError(404, "DECK_NOT_FOUND", "Deck not found");
     }
 
+    const workload = getDeckWorkload(deck.id, new Date().toISOString());
+
     return {
       deck: {
         id: deck.id,
@@ -64,7 +74,8 @@ export async function registerDeckRoutes(app: FastifyInstance): Promise<void> {
         parentId: deck.parent_id,
         createdAt: deck.created_at,
         updatedAt: deck.updated_at,
-        childrenCount: countDeckChildren(deck.id)
+        childrenCount: countDeckChildren(deck.id),
+        workload
       }
     };
   });

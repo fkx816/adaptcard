@@ -263,6 +263,31 @@ curl -X POST http://127.0.0.1:8787/cards/<card-id>/suspend
 curl -X POST http://127.0.0.1:8787/cards/<card-id>/unsuspend
 ```
 
+### Inspect recursive deck workload at a glance
+
+```bash
+curl 'http://127.0.0.1:8787/decks/<deck-id>'
+
+# Response includes subtree workload rollup for planning:
+# {
+#   "deck": {
+#     "id": "<deck-id>",
+#     "name": "Algorithms",
+#     "childrenCount": 3,
+#     "workload": {
+#       "totalCount": 36,
+#       "dueCount": 12,
+#       "overdueCount": 4,
+#       "stateBreakdown": {
+#         "new": 8,
+#         "review": 20,
+#         "suspended": 8
+#       }
+#     }
+#   }
+# }
+```
+
 Every card response now includes a `rendered` payload so web/mobile clients can display review sides directly:
 
 ```json

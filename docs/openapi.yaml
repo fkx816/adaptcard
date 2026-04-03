@@ -215,6 +215,10 @@ paths:
                           totalCount: { type: integer }
                           dueCount: { type: integer }
                           overdueCount: { type: integer }
+                        example:
+                          totalCount: 42
+                          dueCount: 18
+                          overdueCount: 6
 
   /review-sessions/{id}/queue:
     get:
@@ -291,7 +295,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/DeckCreateResponse'
     get:
       summary: List decks
       responses:
@@ -300,7 +304,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/DeckListResponse'
 
   /decks/{id}:
     get:
@@ -316,7 +320,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/DeckDetailResponse'
     patch:
       summary: Update deck
       parameters:
@@ -336,7 +340,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
+                $ref: '#/components/schemas/DeckDetailResponse'
     delete:
       summary: Delete deck (leaf only)
       parameters:
@@ -593,6 +597,61 @@ paths:
 
 components:
   schemas:
+    DeckCreateResponse:
+      type: object
+      properties:
+        id: { type: string }
+    DeckListResponse:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/DeckItem'
+    DeckItem:
+      type: object
+      properties:
+        id: { type: string }
+        name: { type: string }
+        parentId:
+          type: string
+          nullable: true
+        createdAt: { type: string, format: date-time }
+        updatedAt: { type: string, format: date-time }
+    DeckWorkloadSummary:
+      type: object
+      properties:
+        totalCount: { type: integer }
+        dueCount: { type: integer }
+        overdueCount: { type: integer }
+        stateBreakdown:
+          type: object
+          additionalProperties:
+            type: integer
+      example:
+        totalCount: 36
+        dueCount: 12
+        overdueCount: 4
+        stateBreakdown:
+          new: 8
+          review: 20
+          suspended: 8
+    DeckDetailResponse:
+      type: object
+      properties:
+        deck:
+          type: object
+          properties:
+            id: { type: string }
+            name: { type: string }
+            parentId:
+              type: string
+              nullable: true
+            createdAt: { type: string, format: date-time }
+            updatedAt: { type: string, format: date-time }
+            childrenCount: { type: integer }
+            workload:
+              $ref: '#/components/schemas/DeckWorkloadSummary'
     KnowledgePointReviewHistoryItem:
       type: object
       properties:

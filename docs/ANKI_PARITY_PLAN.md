@@ -171,3 +171,10 @@ M4: Plugin API alpha and public extension docs
 - Added integration coverage for timeline pagination and missing knowledge-point guardrail semantics.
 - Expanded README/OpenAPI documentation so timeline inspectability is now contract-visible and frontend-ready.
 - P1 inspectability moved forward at API level; next parity step is card/note-level timeline views plus keyboard-first review UX wiring.
+
+## 2026-04-03 progress note (Run N)
+
+- Added recursive deck workload analytics to `GET /decks/:id` (`totalCount`, `dueCount`, `overdueCount`, `stateBreakdown`) across child decks.
+- Added integration coverage for subtree workload aggregation and state breakdown correctness.
+- Upgraded OpenAPI/README contract clarity for deck planning workflows.
+- This closes a Phase-2 planning gap (review load visibility per deck); core parity gap now concentrates on card/note timeline inspectability and keyboard-first review speed.
