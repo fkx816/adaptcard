@@ -551,3 +551,55 @@ test("knowledge point review history timeline is queryable", async () => {
     assert.equal(missing.json().error.code, "KNOWLEDGE_POINT_NOT_FOUND");
   });
 });
+
+test("card review history timeline is queryable", async () => {
+  await withApp(async (app) => {
+    const createKp = await app.inject({
+      method: "POST",
+      url: "/knowledge-points",
+      payload: {
+        front: "What is dynamic programming?",
+        back: "Optimal substructure + overlapping subproblems"
+      }
+    });
+    assert.equal(createKp.statusCode, 201);
+    const knowledgePointId = createKp.json().id as string;
+
+    const generated = await app.inject({
+      method: "POST",
+      url: "/quiz/generate",
+      payload: { knowledgePointId, count: 2 }
+    });
+    assert.equal(generated.statusCode, 201);
+    const cardId = generated.json().cardId as string;
+
+    const submit = await app.inject({
+      method: "POST",
+      url: "/quiz/submit",
+      payload: {
+        cardId,
+        answers: generated.json().questions.map((question: { id: string; answer: string }) => ({
+          questionId: question.id,
+          userAnswer: question.answer
+        }))
+      }
+    });
+    assert.equal(submit.statusCode, 200);
+
+    const history = await app.inject({
+      method: "GET",
+      url: `/cards/${cardId}/review-history?limit=10&offset=0`
+    });
+    assert.equal(history.statusCode, 200);
+    assert.equal(history.json().cardId, cardId);
+    assert.equal(history.json().items.length, 1);
+    assert.equal(history.json().items[0].knowledgePointId, knowledgePointId);
+    assert.equal(history.json().items[0].stats.total, 2);
+    assert.equal(history.json().items[0].stats.correct, 2);
+    assert.ok(Array.isArray(history.json().items[0].answers));
+
+    const missing = await app.inject({ method: "GET", url: "/cards/missing/review-history" });
+    assert.equal(missing.statusCode, 404);
+    assert.equal(missing.json().error.code, "CARD_NOT_FOUND");
+  });
+});

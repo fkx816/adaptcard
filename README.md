@@ -122,6 +122,7 @@ Manage your environment through variables:
 | Decks (CRUD) | `POST`/`GET`/`PATCH`/`DELETE` | `/decks`, `/decks/:id` | ✅ |
 | Notes | `POST` / `GET` | `/notes` | ✅ |
 | Card browser | `GET` | `/cards` | ✅ |
+| Card review history timeline | `GET` | `/cards/:id/review-history` | ✅ |
 | Suspend / unsuspend| `POST` | `/cards/:id/suspend`, `/cards/:id/unsuspend` | ✅ |
 | Bulk move / retag | `POST` | `/cards/bulk/move-deck`, `/cards/bulk/retag` | ✅ |
 | Saved filters | `POST` / `GET` | `/cards/filters`, `/cards/filters/:id/apply` | ✅ |
@@ -169,7 +170,20 @@ curl 'http://127.0.0.1:8787/knowledge-points/<knowledge-point-id>/review-history
 # }
 ```
 
-### 3️⃣ Start a review session
+### 3️⃣ Inspect review history timeline for a generated card
+
+```bash
+curl 'http://127.0.0.1:8787/cards/<card-id>/review-history?limit=10&offset=0'
+
+# Response includes timeline entries for that generated quiz card:
+# {
+#   "cardId": "<card-id>",
+#   "items": [{ "reviewedAt": "...", "rating": 4, "stats": { "total": 2, "correct": 2 } }],
+#   "page": { "limit": 10, "offset": 0, "total": 1 }
+# }
+```
+
+### 4️⃣ Start a review session
 
 ```bash
 curl -X POST http://127.0.0.1:8787/review-sessions/start \
@@ -177,7 +191,7 @@ curl -X POST http://127.0.0.1:8787/review-sessions/start \
   -d '{}'
 ```
 
-### 4️⃣ Start a filtered custom study session
+### 5️⃣ Start a filtered custom study session
 
 ```bash
 curl -X POST http://127.0.0.1:8787/review-sessions/start \
@@ -202,7 +216,7 @@ curl 'http://127.0.0.1:8787/review-sessions/<session-id>/queue?limit=20&offset=0
 curl 'http://127.0.0.1:8787/review-sessions/<session-id>'
 ```
 
-### 5️⃣ Generate a quiz
+### 6️⃣ Generate a quiz
 
 ```bash
 curl -X POST http://127.0.0.1:8787/quiz/generate \

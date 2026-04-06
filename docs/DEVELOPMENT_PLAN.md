@@ -485,6 +485,22 @@ Next cycle focus:
 - Add keyboard-first frontend controls for scoped-session launch, queue traversal, and submit/undo shortcuts.
 - Tighten OpenAPI response examples for undo/queue/session error envelopes and add stricter contract checks where feasible.
 
+### 2026-04-06 Maintenance update (Run O)
+
+Completed this cycle:
+- Implemented card-level review timeline endpoint `GET /cards/:id/review-history` backed by `review_logs.card_id` pagination, including stats and answer snapshots.
+- Added integration coverage for card timeline success path + `CARD_NOT_FOUND` guardrail behavior.
+- Upgraded docs/presentation quality by refreshing README API matrix/examples and extending OpenAPI with `CardReviewHistoryResponse` schemas and path coverage.
+
+Priority shifts:
+- Card-level inspectability is now shipped, reducing parity risk for browser-side “why is this card scheduled this way?” investigations.
+- Highest remaining parity gap is note-level timeline inspectability plus keyboard-first review UX wiring.
+
+Next cycle focus:
+- Implement note-level review timeline endpoint(s) with aggregation across all note cards.
+- Add keyboard-first frontend controls for scoped-session launch, queue traversal, submit, and undo.
+- Tighten OpenAPI contract checks from path presence toward method/shape-level assertions for critical session and history endpoints.
+
 ## 10. Strategic Expansion Tracks
 
 ### Track A — Learner Experience

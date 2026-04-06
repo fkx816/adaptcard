@@ -59,3 +59,29 @@ export function listReviewLogsByKnowledgePoint(
 
   return { items, total: total.count };
 }
+
+export function listReviewLogsByCard(
+  cardId: string,
+  limit: number,
+  offset: number
+): { items: ReviewLogRow[]; total: number } {
+  const items = db
+    .prepare(
+      `SELECT *
+       FROM review_logs
+       WHERE card_id = ?
+       ORDER BY reviewed_at DESC, rowid DESC
+       LIMIT ? OFFSET ?`
+    )
+    .all(cardId, limit, offset) as ReviewLogRow[];
+
+  const total = db
+    .prepare(
+      `SELECT COUNT(*) as count
+       FROM review_logs
+       WHERE card_id = ?`
+    )
+    .get(cardId) as { count: number };
+
+  return { items, total: total.count };
+}

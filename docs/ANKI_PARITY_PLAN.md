@@ -178,3 +178,10 @@ M4: Plugin API alpha and public extension docs
 - Added integration coverage for subtree workload aggregation and state breakdown correctness.
 - Upgraded OpenAPI/README contract clarity for deck planning workflows.
 - This closes a Phase-2 planning gap (review load visibility per deck); core parity gap now concentrates on card/note timeline inspectability and keyboard-first review speed.
+
+## 2026-04-06 progress note (Run O)
+
+- Added card-level review timeline endpoint `GET /cards/:id/review-history` with pagination and per-review stats/answer snapshots.
+- Added integration tests for card timeline retrieval and `CARD_NOT_FOUND` protection.
+- Extended OpenAPI + README so card timeline inspectability is now contract-visible and operator-documented.
+- P1 inspectability is now stronger at card granularity; remaining parity gap is note-level timeline views and keyboard-first review controls.

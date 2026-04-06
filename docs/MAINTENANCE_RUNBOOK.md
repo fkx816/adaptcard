@@ -292,6 +292,18 @@ Next cycle priorities:
 - Add keyboard-first review controls (start scoped session, next card, submit, undo) in frontend flow.
 - Expand OpenAPI examples for undo/session errors and enforce stricter response-shape checks.
 
+### 2026-04-06 (Run O)
+
+Completed:
+- Added card-level review-history API (`GET /cards/:id/review-history`) with paginated timeline output from `review_logs` by `card_id`.
+- Added integration tests for happy-path retrieval and missing-card guardrail (`CARD_NOT_FOUND`).
+- Updated README + OpenAPI documentation to improve operator-facing inspectability guidance and contract completeness.
+
+Next cycle priorities:
+- Implement note-level review-history endpoint(s) that consolidate history across a note’s cards.
+- Start keyboard-first frontend interaction wiring for scoped review sessions (launch, traverse, submit, undo).
+- Strengthen OpenAPI drift checks toward method/response strictness for session/history routes.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

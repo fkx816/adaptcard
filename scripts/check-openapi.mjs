@@ -19,6 +19,7 @@ const expectedPaths = [
   "/decks/{id}",
   "/notes",
   "/cards",
+  "/cards/{id}/review-history",
   "/cards/{id}/suspend",
   "/cards/{id}/unsuspend",
   "/cards/bulk/move-deck",

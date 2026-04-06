@@ -10,6 +10,8 @@ import {
   updateCardState,
   type CardRow
 } from "../models/card.js";
+import { getGeneratedCard } from "../models/generated-card.js";
+import { listReviewLogsByCard } from "../models/review-log.js";
 import {
   createSavedCardFilter,
   getSavedCardFilterById,
@@ -32,6 +34,11 @@ const listCardsQuerySchema = z.object({
 
 const cardIdParamSchema = z.object({
   id: z.string().min(1)
+});
+
+const historyQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  offset: z.coerce.number().int().min(0).default(0)
 });
 
 const bulkMoveDeckSchema = z.object({
@@ -116,6 +123,47 @@ export async function registerCardRoutes(app: FastifyInstance): Promise<void> {
         createdAt: card.created_at,
         updatedAt: card.updated_at
       })),
+      page: {
+        limit: query.limit,
+        offset: query.offset,
+        total: result.total
+      }
+    };
+  });
+
+  app.get("/cards/:id/review-history", async (request) => {
+    const params = cardIdParamSchema.parse(request.params ?? {});
+    const query = historyQuerySchema.parse(request.query ?? {});
+    const card = getGeneratedCard(params.id);
+
+    if (!card) {
+      throw new AppError(404, "CARD_NOT_FOUND", "Card not found");
+    }
+
+    const result = listReviewLogsByCard(params.id, query.limit, query.offset);
+
+    return {
+      cardId: params.id,
+      items: result.items.map((row) => {
+        const detail = JSON.parse(row.detail) as {
+          answers?: Array<{ questionId: string; userAnswer: string }>;
+          stats?: { total?: number; correct?: number };
+        };
+
+        return {
+          id: row.id,
+          sessionId: row.session_id,
+          knowledgePointId: row.knowledge_point_id,
+          reviewedAt: row.reviewed_at,
+          rating: row.rating,
+          correctRate: row.correct_rate,
+          stats: {
+            total: detail.stats?.total ?? null,
+            correct: detail.stats?.correct ?? null
+          },
+          answers: detail.answers ?? []
+        };
+      }),
       page: {
         limit: query.limit,
         offset: query.offset,
