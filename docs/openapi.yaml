@@ -368,6 +368,7 @@ paths:
               required: [deckId, front, back]
               properties:
                 deckId: { type: string }
+                knowledgePointId: { type: string }
                 front: { type: string }
                 back: { type: string }
                 tags:
@@ -410,6 +411,28 @@ paths:
             application/json:
               schema:
                 type: object
+
+  /notes/{id}/review-history:
+    get:
+      summary: List review history timeline for one note (linked knowledge point)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: query
+          name: limit
+          schema: { type: integer, minimum: 1, maximum: 100 }
+        - in: query
+          name: offset
+          schema: { type: integer, minimum: 0 }
+      responses:
+        '200':
+          description: Note review history page
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoteReviewHistoryResponse'
 
   /cards:
     get:
@@ -752,6 +775,23 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CardReviewHistoryItem'
+        page:
+          type: object
+          properties:
+            limit: { type: integer }
+            offset: { type: integer }
+            total: { type: integer }
+    NoteReviewHistoryResponse:
+      type: object
+      properties:
+        noteId: { type: string }
+        knowledgePointId:
+          type: string
+          nullable: true
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgePointReviewHistoryItem'
         page:
           type: object
           properties:

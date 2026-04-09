@@ -3,11 +3,14 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { AppError } from "../errors.js";
 import { getDeckById } from "../models/deck.js";
+import { getKnowledgePointById } from "../models/knowledge-point.js";
+import { listReviewLogsByKnowledgePoint } from "../models/review-log.js";
 import { createCard } from "../models/card.js";
-import { createNote, listNotes } from "../models/note.js";
+import { createNote, getNoteById, listNotes } from "../models/note.js";
 
 const createNoteSchema = z.object({
   deckId: z.string().min(1),
+  knowledgePointId: z.string().min(1).optional(),
   front: z.string().min(1),
   back: z.string().min(1),
   tags: z.array(z.string().min(1)).default([]),
@@ -51,8 +54,17 @@ function buildTemplateCardTypes(cardType: "basic" | "reverse" | "cloze", front: 
   return clozeCardTypes;
 }
 
+const noteIdParamSchema = z.object({
+  id: z.string().min(1)
+});
+
 const listNotesQuerySchema = z.object({
   deckId: z.string().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  offset: z.coerce.number().int().min(0).default(0)
+});
+
+const reviewHistoryQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(100).default(20),
   offset: z.coerce.number().int().min(0).default(0)
 });
@@ -65,12 +77,19 @@ export async function registerNoteRoutes(app: FastifyInstance): Promise<void> {
       throw new AppError(404, "DECK_NOT_FOUND", "Deck not found");
     }
 
+    if (body.knowledgePointId) {
+      const knowledgePoint = getKnowledgePointById(body.knowledgePointId);
+      if (!knowledgePoint) {
+        throw new AppError(404, "KNOWLEDGE_POINT_NOT_FOUND", "Knowledge point not found");
+      }
+    }
+
     const nowIso = new Date().toISOString();
     const noteId = nanoid(12);
     createNote({
       id: noteId,
       deck_id: body.deckId,
-      knowledge_point_id: null,
+      knowledge_point_id: body.knowledgePointId ?? null,
       front: body.front,
       back: body.back,
       tags: JSON.stringify(body.tags),
@@ -109,12 +128,68 @@ export async function registerNoteRoutes(app: FastifyInstance): Promise<void> {
       items: items.map((note) => ({
         id: note.id,
         deckId: note.deck_id,
+        knowledgePointId: note.knowledge_point_id,
         front: note.front,
         back: note.back,
         tags: JSON.parse(note.tags) as string[],
         createdAt: note.created_at,
         updatedAt: note.updated_at
       }))
+    };
+  });
+
+  app.get("/notes/:id/review-history", async (request) => {
+    const params = noteIdParamSchema.parse(request.params ?? {});
+    const query = reviewHistoryQuerySchema.parse(request.query ?? {});
+
+    const note = getNoteById(params.id);
+    if (!note) {
+      throw new AppError(404, "NOTE_NOT_FOUND", "Note not found");
+    }
+
+    if (!note.knowledge_point_id) {
+      return {
+        noteId: note.id,
+        knowledgePointId: null,
+        items: [],
+        page: {
+          limit: query.limit,
+          offset: query.offset,
+          total: 0
+        }
+      };
+    }
+
+    const result = listReviewLogsByKnowledgePoint(note.knowledge_point_id, query.limit, query.offset);
+
+    return {
+      noteId: note.id,
+      knowledgePointId: note.knowledge_point_id,
+      items: result.items.map((row) => {
+        const detail = JSON.parse(row.detail) as {
+          answers?: Array<{ questionId: string; userAnswer: string }>;
+          stats?: { total?: number; correct?: number };
+        };
+
+        return {
+          id: row.id,
+          sessionId: row.session_id,
+          cardId: row.card_id,
+          reviewedAt: row.reviewed_at,
+          rating: row.rating,
+          correctRate: row.correct_rate,
+          stats: {
+            total: detail.stats?.total ?? null,
+            correct: detail.stats?.correct ?? null
+          },
+          answers: detail.answers ?? []
+        };
+      }),
+      page: {
+        limit: query.limit,
+        offset: query.offset,
+        total: result.total
+      }
     };
   });
 }

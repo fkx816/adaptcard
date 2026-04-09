@@ -552,6 +552,96 @@ test("knowledge point review history timeline is queryable", async () => {
   });
 });
 
+test("note review history timeline is queryable through linked knowledge point", async () => {
+  await withApp(async (app) => {
+    const deck = await app.inject({ method: "POST", url: "/decks", payload: { name: "Algorithms" } });
+    assert.equal(deck.statusCode, 201);
+    const deckId = deck.json().id as string;
+
+    const createKp = await app.inject({
+      method: "POST",
+      url: "/knowledge-points",
+      payload: {
+        front: "What is memoization?",
+        back: "Caching repeated subproblem results"
+      }
+    });
+    assert.equal(createKp.statusCode, 201);
+    const knowledgePointId = createKp.json().id as string;
+
+    const createNote = await app.inject({
+      method: "POST",
+      url: "/notes",
+      payload: {
+        deckId,
+        knowledgePointId,
+        front: "Memoization",
+        back: "Cache repeated subproblem results",
+        tags: ["algorithms", "dp"],
+        cardType: "basic"
+      }
+    });
+    assert.equal(createNote.statusCode, 201);
+    const noteId = createNote.json().id as string;
+
+    const generated = await app.inject({
+      method: "POST",
+      url: "/quiz/generate",
+      payload: { knowledgePointId, count: 2 }
+    });
+    assert.equal(generated.statusCode, 201);
+
+    const submit = await app.inject({
+      method: "POST",
+      url: "/quiz/submit",
+      payload: {
+        cardId: generated.json().cardId,
+        answers: generated.json().questions.map((question: { id: string; answer: string }) => ({
+          questionId: question.id,
+          userAnswer: question.answer
+        }))
+      }
+    });
+    assert.equal(submit.statusCode, 200);
+
+    const history = await app.inject({
+      method: "GET",
+      url: `/notes/${noteId}/review-history?limit=10&offset=0`
+    });
+    assert.equal(history.statusCode, 200);
+    assert.equal(history.json().noteId, noteId);
+    assert.equal(history.json().knowledgePointId, knowledgePointId);
+    assert.equal(history.json().items.length, 1);
+    assert.equal(history.json().items[0].stats.total, 2);
+    assert.equal(history.json().items[0].stats.correct, 2);
+
+    const noLinkedNote = await app.inject({
+      method: "POST",
+      url: "/notes",
+      payload: {
+        deckId,
+        front: "Standalone note",
+        back: "No linked knowledge point",
+        tags: ["misc"]
+      }
+    });
+    assert.equal(noLinkedNote.statusCode, 201);
+
+    const noLinkHistory = await app.inject({
+      method: "GET",
+      url: `/notes/${noLinkedNote.json().id as string}/review-history?limit=10&offset=0`
+    });
+    assert.equal(noLinkHistory.statusCode, 200);
+    assert.equal(noLinkHistory.json().knowledgePointId, null);
+    assert.equal(noLinkHistory.json().items.length, 0);
+    assert.equal(noLinkHistory.json().page.total, 0);
+
+    const missing = await app.inject({ method: "GET", url: "/notes/missing/review-history" });
+    assert.equal(missing.statusCode, 404);
+    assert.equal(missing.json().error.code, "NOTE_NOT_FOUND");
+  });
+});
+
 test("card review history timeline is queryable", async () => {
   await withApp(async (app) => {
     const createKp = await app.inject({

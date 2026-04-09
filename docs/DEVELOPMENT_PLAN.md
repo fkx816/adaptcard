@@ -501,6 +501,23 @@ Next cycle focus:
 - Add keyboard-first frontend controls for scoped-session launch, queue traversal, submit, and undo.
 - Tighten OpenAPI contract checks from path presence toward method/shape-level assertions for critical session and history endpoints.
 
+### 2026-04-09 Maintenance update (Run P)
+
+Completed this cycle:
+- Implemented note-level review timeline endpoint `GET /notes/:id/review-history` with pagination and consistent stats/answers payload shape.
+- Upgraded note creation/listing contracts to support optional `knowledgePointId` linkage so note timelines can be attached to scheduling history instead of remaining isolated records.
+- Added integration tests covering linked-note history retrieval, unlinked-note empty timeline semantics, and `NOTE_NOT_FOUND` guardrail behavior.
+- Improved docs/presentation quality via README API narrative/examples and OpenAPI coverage updates for note-linked timeline workflows.
+
+Priority shifts:
+- Note-level inspectability is now shipped at API level, substantially closing the P1 “timeline per card/note” parity gap.
+- Remaining highest-value parity work shifts to keyboard-first review UX and stronger contract enforcement depth.
+
+Next cycle focus:
+- Implement keyboard-first frontend controls for scoped-session launch, queue traversal, submit, and undo.
+- Tighten OpenAPI drift checks from path-only assertions to method-level and critical response-shape validation for session/history routes.
+- Add note/card timeline aggregation metadata (for example per-note counts or latest-review summaries) to speed browser triage.
+
 ## 10. Strategic Expansion Tracks
 
 ### Track A — Learner Experience

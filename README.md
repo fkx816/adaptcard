@@ -51,7 +51,7 @@ It is **domain-agnostic** by design. Use the same engine to build study workflow
 - 🎯 **Filtered custom study sessions** — start scoped sessions by deck, tags, state, and due-date window, with due/overdue workload summary on session detail
 - 🗂 **Deck hierarchy** — nested decks with guardrails (no orphan deletes, clean tree management)
 - 🃏 **Card browser + rendered sides** — query/filter cards and receive `rendered.prompt` + `rendered.answer` for `basic`, `reverse`, and `cloze:N` cards (no frontend template reconstruction required)
-- 📝 **Note + card templates** — `basic`, `reverse`, and `cloze` card types
+- 📝 **Note + card templates** — `basic`, `reverse`, and `cloze` card types, with optional `knowledgePointId` linkage for note-level learning timelines
 - 🔒 **Local-model support** — full Ollama integration for privacy-sensitive or air-gapped setups
 - 📄 **OpenAPI spec** — machine-readable contract at [`docs/openapi.yaml`](docs/openapi.yaml)
 
@@ -121,6 +121,7 @@ Manage your environment through variables:
 | Undo last review | `POST` | `/review-sessions/:id/undo-last-review` | ✅ |
 | Decks (CRUD) | `POST`/`GET`/`PATCH`/`DELETE` | `/decks`, `/decks/:id` | ✅ |
 | Notes | `POST` / `GET` | `/notes` | ✅ |
+| Note review history timeline | `GET` | `/notes/:id/review-history` | ✅ |
 | Card browser | `GET` | `/cards` | ✅ |
 | Card review history timeline | `GET` | `/cards/:id/review-history` | ✅ |
 | Suspend / unsuspend| `POST` | `/cards/:id/suspend`, `/cards/:id/unsuspend` | ✅ |
@@ -183,7 +184,36 @@ curl 'http://127.0.0.1:8787/cards/<card-id>/review-history?limit=10&offset=0'
 # }
 ```
 
-### 4️⃣ Start a review session
+### 4️⃣ Create a note linked to a knowledge point
+
+```bash
+curl -X POST http://127.0.0.1:8787/notes \
+  -H 'content-type: application/json' \
+  -d '{
+    "deckId": "<deck-id>",
+    "knowledgePointId": "<knowledge-point-id>",
+    "front": "What is memoization?",
+    "back": "Caching repeated subproblem results",
+    "tags": ["algorithms", "dp"],
+    "cardType": "basic"
+  }'
+```
+
+### 5️⃣ Inspect review history timeline for a note
+
+```bash
+curl 'http://127.0.0.1:8787/notes/<note-id>/review-history?limit=10&offset=0'
+
+# Response uses linked knowledge point logs when knowledgePointId is present:
+# {
+#   "noteId": "<note-id>",
+#   "knowledgePointId": "<knowledge-point-id>",
+#   "items": [{ "reviewedAt": "...", "correctRate": 1, "stats": { "total": 2, "correct": 2 } }],
+#   "page": { "limit": 10, "offset": 0, "total": 4 }
+# }
+```
+
+### 6️⃣ Start a review session
 
 ```bash
 curl -X POST http://127.0.0.1:8787/review-sessions/start \
@@ -191,7 +221,7 @@ curl -X POST http://127.0.0.1:8787/review-sessions/start \
   -d '{}'
 ```
 
-### 5️⃣ Start a filtered custom study session
+### 7️⃣ Start a filtered custom study session
 
 ```bash
 curl -X POST http://127.0.0.1:8787/review-sessions/start \
@@ -216,7 +246,7 @@ curl 'http://127.0.0.1:8787/review-sessions/<session-id>/queue?limit=20&offset=0
 curl 'http://127.0.0.1:8787/review-sessions/<session-id>'
 ```
 
-### 6️⃣ Generate a quiz
+### 8️⃣ Generate a quiz
 
 ```bash
 curl -X POST http://127.0.0.1:8787/quiz/generate \

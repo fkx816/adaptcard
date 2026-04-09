@@ -304,6 +304,19 @@ Next cycle priorities:
 - Start keyboard-first frontend interaction wiring for scoped review sessions (launch, traverse, submit, undo).
 - Strengthen OpenAPI drift checks toward method/response strictness for session/history routes.
 
+### 2026-04-09 (Run P)
+
+Completed:
+- Added note-level timeline API `GET /notes/:id/review-history` with pagination and stable timeline payload fields (`rating`, `correctRate`, `stats`, `answers`).
+- Added optional `knowledgePointId` linkage to note creation/listing so note records can map to review history.
+- Added integration tests covering linked note timeline success, unlinked note empty-state behavior, and missing-note guardrail (`NOTE_NOT_FOUND`).
+- Updated README and OpenAPI docs to improve discoverability and operator usage quality for note-linked history workflows.
+
+Next cycle priorities:
+- Implement keyboard-first frontend controls for scoped review sessions (launch, queue traversal, submit, undo shortcuts).
+- Harden OpenAPI drift checks to verify method-level + critical response-shape coverage (not just path presence).
+- Add timeline summary metadata to note/card endpoints for faster browser triage without extra API calls.
+
 ## 8. Maintainer Workflow
 
 Preferred workflow:

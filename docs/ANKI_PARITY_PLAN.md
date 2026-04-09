@@ -185,3 +185,10 @@ M4: Plugin API alpha and public extension docs
 - Added integration tests for card timeline retrieval and `CARD_NOT_FOUND` protection.
 - Extended OpenAPI + README so card timeline inspectability is now contract-visible and operator-documented.
 - P1 inspectability is now stronger at card granularity; remaining parity gap is note-level timeline views and keyboard-first review controls.
+
+## 2026-04-09 progress note (Run P)
+
+- Added note-level review timeline endpoint `GET /notes/:id/review-history` with pagination and timeline payload parity with other history APIs.
+- Added optional `knowledgePointId` linkage on note creation/listing so notes can carry inspectable scheduling history context.
+- Added integration tests for linked-note history retrieval, unlinked-note empty timeline behavior, and `NOTE_NOT_FOUND` guardrails.
+- This closes the explicit P1 timeline parity requirement across card and note scopes; top parity gap now shifts to keyboard-first review interaction speed.
